@@ -1,0 +1,23 @@
+﻿<UserControl x:Class="ChepInlineApp.UserControls.ModalYesNoPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ChepInlineApp.UserControls"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <!-- Yes / No Button Panel -->
+    <Grid>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="20">
+            <Button Content="Yes"
+            Style="{StaticResource PrimaryButton}"
+            Command="{Binding YesButtonCommand}"/>
+
+            <Button Content="No"
+            Style="{StaticResource PrimaryButton}"
+            Command="{Binding NoButtonCommand}"
+            Margin="20 0 0 0" />
+        </StackPanel>
+    </Grid>
+</UserControl>
+

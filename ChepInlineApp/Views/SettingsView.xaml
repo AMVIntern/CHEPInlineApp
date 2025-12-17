@@ -1,0 +1,76 @@
+﻿<UserControl x:Class="ChepInlineApp.Views.RecipeManagerView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ChepInlineApp.Views"
+             xmlns:uc="clr-namespace:ChepInlineApp.UserControls"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid Background="{DynamicResource PrimaryBackground}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Border Grid.Column="0"
+         Margin="5"
+         BorderBrush="{StaticResource PrimaryBorder}"
+         BorderThickness="1">
+
+            <Grid Margin="5">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="auto"/>
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="0.5*"/>
+                    <ColumnDefinition Width="0.25*"/>
+                    <ColumnDefinition Width="0.25*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- BACK BUTTON -->
+                <Button Grid.Row="0"
+                    Grid.Column="0"
+                    Margin="10,10,0,20"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+                    Command="{Binding HomeButtonCommand}"
+                    Style="{StaticResource NavigationPrimaryButton}"
+                    Content="← Back"
+                    Width="100"
+                        Height="60"/>
+                <!-- Title -->
+                <TextBlock Grid.Row="0"
+                    Grid.ColumnSpan="3"
+                    Margin="20"
+                    Style="{StaticResource TextLarge}"
+                    Text="Settings Manager"
+                    Foreground="{DynamicResource PrimaryForeground}"/>
+
+                <!-- Divider Line -->
+                <Line Grid.Row="1"
+               Grid.ColumnSpan="3"
+               Margin="30 0"
+               Stroke="{StaticResource PrimaryBorder}"
+               StrokeThickness="2"
+               X1="0" X2="1"
+               Stretch="Fill" 
+               HorizontalAlignment="Stretch"/>
+                <Button Grid.Row="5"
+                  Grid.ColumnSpan="3"
+                  Command="{Binding SaveRecipeCommand}"
+                  Style="{StaticResource PrimaryButton}"
+                  IsEnabled="{Binding IsDefaultRecipeLoaded, Converter={StaticResource InverseBooleanConverter}}"
+                  Content="Save Settings"
+                  MaxWidth="225"
+                  Width="225"
+                  Margin="0 20 0 0"/>
+
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

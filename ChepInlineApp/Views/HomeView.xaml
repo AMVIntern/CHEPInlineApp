@@ -1,0 +1,64 @@
+﻿<UserControl x:Class="ChepInlineApp.Views.HomeView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ChepInlineApp.Views"
+             xmlns:enums="clr-namespace:ChepInlineApp.Enums"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+    
+        <local:ImageView Grid.Column="0" Grid.Row="0"
+                         Title="{Binding Station1_Cam1.Title}"
+                         Status="{Binding Station1_Cam1.Status}"
+                         Image="{Binding Station1_Cam1.Image}"/>
+
+        <local:ImageView Grid.Column="1" Grid.Row="0"
+                         Title="{Binding Station1_Cam2.Title}"
+                         Status="{Binding Station1_Cam2.Status}"
+                         Image="{Binding Station1_Cam2.Image}"/>
+
+        <local:ImageView  Grid.Column="2" Grid.Row="0"
+                         Title="{Binding Station1_Cam3.Title}"
+                         Status="{Binding Station1_Cam3.Status}"
+                         Image="{Binding Station1_Cam3.Image}"/>
+
+        <local:ImageView  Grid.Column="3" Grid.Row="0"
+                         Title="{Binding Station1_Cam4.Title}"
+                         Status="{Binding Station1_Cam4.Status}"
+                         Image="{Binding Station1_Cam4.Image}"/>
+
+
+        <StackPanel Grid.Row="1"
+            Grid.Column="0"
+            Grid.ColumnSpan="4"
+            Orientation="Horizontal"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Bottom"
+            Margin="0,0,0,40">
+            <Button Width="150" Command="{Binding HomeButtonCommand}"
+                    Style="{StaticResource NavigationPrimaryButton}"
+                    Content="Home" />
+
+            <Button Width="150" Command="{Binding RecipeManagerButtonCommand}"
+                    Style="{StaticResource NavigationPrimaryButton}"
+                    Content="Settings" />
+
+            <Button Width="150" Command="{Binding ExitApplicationButtonCommand}"
+                    Style="{StaticResource NavigationPrimaryButton}"
+                    Content="Exit" />
+        </StackPanel>
+
+    </Grid>
+</UserControl>

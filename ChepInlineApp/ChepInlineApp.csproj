@@ -1,0 +1,39 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0" />
+    <PackageReference Include="MVTec.HalconDotNet-Windows" Version="25050.0.0" />
+	<PackageReference Include="Serilog" Version="4.3.0" />
+	<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+	<PackageReference Include="OpenCvSharp4" Version="4.11.0.20250507" />
+	<PackageReference Include="OpenCvSharp4.runtime.win" Version="4.11.0.20250507" />
+  </ItemGroup>
+	<ItemGroup>
+		<None Remove="Resources\Logos\AMVLogoWhiteBorder.png" />
+		<None Remove="Resources\Logos\Splash.png" />
+		<None Remove="Resources\CollapseArrow.png" />
+		<None Remove="Resources\ExpandArrow.png" />
+		<None Remove="Resources\Logos\ChepLogo.png" />
+	</ItemGroup>
+	<ItemGroup>
+		<Resource Include="Resources\Logos\AMVLogoWhiteBorder.png" />
+		<Resource Include="Resources\Logos\ChepLogo.png" />
+		<Resource Include="Resources\CollapseArrow.png" />
+		<Resource Include="Resources\ExpandArrow.png" />
+	</ItemGroup>
+	<ItemGroup>
+		<SplashScreen Include="Resources\Logos\Splash.png" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Vision\Handlers\Steps\" />
+	</ItemGroup>
+</Project>

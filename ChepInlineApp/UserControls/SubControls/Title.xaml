@@ -1,0 +1,34 @@
+﻿<UserControl x:Class="ChepInlineApp.UserControls.SubControls.Title"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ChepInlineApp.UserControls.SubControls"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <!-- Title Bar -->
+    <Border
+    Margin="5"
+    BorderBrush="{StaticResource PrimaryBorder}"
+    BorderThickness="1">
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Application Title -->
+            <TextBlock Grid.Column="1"
+               MaxWidth="500"
+               HorizontalAlignment="Center"
+               VerticalAlignment="Center"
+               Style="{StaticResource TextTitle}"
+               Text="CHEP Diagnostic Application"
+               TextAlignment="Center"
+              
+               Foreground="{DynamicResource PrimaryForeground}" />
+        </Grid>
+    </Border>
+</UserControl>

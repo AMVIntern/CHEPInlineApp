@@ -20,6 +20,7 @@ namespace ChepInlineApp.Vision.Coordinator
         private readonly ImageLogger _imageLogger;
         private readonly ImageCaptureCsvWriter _csvWriter;
         private readonly TriggerSessionManager _triggerSessionManager;
+        private readonly PlcEventStore _plcEventStore;
         private readonly HomeViewModel? _homeViewModel;
 
         public InspectionCoordinator(
@@ -29,6 +30,7 @@ namespace ChepInlineApp.Vision.Coordinator
             ImageLogger imageLogger,
             ImageCaptureCsvWriter csvWriter,
             TriggerSessionManager triggerSessionManager,
+            PlcEventStore plcEventStore,
             HomeViewModel? homeViewModel = null)
         {
             _runners = runners;
@@ -37,6 +39,7 @@ namespace ChepInlineApp.Vision.Coordinator
             _imageLogger = imageLogger;
             _csvWriter = csvWriter;
             _triggerSessionManager = triggerSessionManager;
+            _plcEventStore = plcEventStore;
             _homeViewModel = homeViewModel;
             
             // Subscribe to all cameras for inspection, even if no runner is registered
@@ -248,7 +251,10 @@ namespace ChepInlineApp.Vision.Coordinator
                     // Write to CSV if image was logged
                     if (!string.IsNullOrEmpty(imagePath))
                     {
-                        await _csvWriter.WriteImageCaptureAsync(imagePath, timestamp, "tag123");
+                        // Get Pallet ID from PLC Event Store
+                        int palletId = _plcEventStore.GetCurrentPalletId();
+                        string tagId = palletId > 0 ? palletId.ToString() : "tag@123"; // Use pallet ID or fallback
+                        await _csvWriter.WriteImageCaptureAsync(imagePath, timestamp, tagId);
                     }
                 }
                 catch (Exception ex)

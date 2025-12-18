@@ -28,12 +28,13 @@ namespace ChepInlineApp.ViewModels
         private readonly ImageLogger _imageLogger;
         private readonly ChepInlineApp.MetadataExporter.Services.ImageCaptureCsvWriter _csvWriter;
         private readonly TriggerSessionManager _triggerSessionManager;
+        private readonly PlcEventStore _plcEventStore;
         private readonly NavigationBarViewModel _navigationBarViewModel;
 
         public NavigationBarViewModel NavigationBarViewModel => _navigationBarViewModel;
 
         public MainWindowViewModel(NavigationStore navigationStore, HomeViewModel homeViewModel,
-            SettingsViewModel settingsViewModel,ModalStore modalStore, MultiCameraImageStore imageStore,ImageLogger imageLogger, ChepInlineApp.MetadataExporter.Services.ImageCaptureCsvWriter csvWriter, TriggerSessionManager triggerSessionManager, NavigationBarViewModel navigationBarViewModel) 
+            SettingsViewModel settingsViewModel,ModalStore modalStore, MultiCameraImageStore imageStore,ImageLogger imageLogger, ChepInlineApp.MetadataExporter.Services.ImageCaptureCsvWriter csvWriter, TriggerSessionManager triggerSessionManager, PlcEventStore plcEventStore, NavigationBarViewModel navigationBarViewModel) 
         { 
             _navigationStore = navigationStore;
             _homeViewModel = homeViewModel;
@@ -41,6 +42,7 @@ namespace ChepInlineApp.ViewModels
             _imageLogger = imageLogger;
             _csvWriter = csvWriter;
             _triggerSessionManager = triggerSessionManager;
+            _plcEventStore = plcEventStore;
             _imageStore = imageStore;
             _navigationBarViewModel = navigationBarViewModel;
             _navigationStore.CurrentViewModelChanged += NavigationStore_CurrentViewModelChanged;
@@ -52,7 +54,7 @@ namespace ChepInlineApp.ViewModels
             {
                 { "Station1_Cam1", homeViewModel.Station1_Cam1 },
             };
-            var bootstrapper = new InspectionBoostrapper(imageStore, cameraViewModels, imageLogger, csvWriter, triggerSessionManager, settingsViewModel, homeViewModel);
+            var bootstrapper = new InspectionBoostrapper(imageStore, cameraViewModels, imageLogger, csvWriter, triggerSessionManager, _plcEventStore, settingsViewModel, homeViewModel);
         }
         private void NavigationStore_CurrentViewModelChanged()
         {

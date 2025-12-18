@@ -21,16 +21,19 @@ namespace ChepInlineApp.Vision.Coordinator
 
         public InspectionCoordinator Coordinator { get; }
 
-        public InspectionBoostrapper(MultiCameraImageStore imageStore, Dictionary<string, CameraViewModel> cameraViewModels, ImageLogger imageLogger, ImageCaptureCsvWriter csvWriter, TriggerSessionManager triggerSessionManager, SettingsViewModel settingsViewModel, HomeViewModel? homeViewModel = null)
+        private readonly PlcEventStore _plcEventStore;
+
+        public InspectionBoostrapper(MultiCameraImageStore imageStore, Dictionary<string, CameraViewModel> cameraViewModels, ImageLogger imageLogger, ImageCaptureCsvWriter csvWriter, TriggerSessionManager triggerSessionManager, PlcEventStore plcEventStore, SettingsViewModel settingsViewModel, HomeViewModel? homeViewModel = null)
         {
             _triggerSessionManager = triggerSessionManager;
             _settingsViewModel = settingsViewModel;
+            _plcEventStore = plcEventStore;
 
             var runners = new Dictionary<string, IInspectionRunner>()
             {
             };
 
-            Coordinator = new InspectionCoordinator(runners, imageStore, cameraViewModels, imageLogger, csvWriter, _triggerSessionManager, homeViewModel);
+            Coordinator = new InspectionCoordinator(runners, imageStore, cameraViewModels, imageLogger, csvWriter, _triggerSessionManager, _plcEventStore, homeViewModel);
         }
     }
 }

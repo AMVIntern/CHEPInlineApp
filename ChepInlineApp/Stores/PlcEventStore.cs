@@ -8,6 +8,9 @@ namespace ChepInlineApp.Stores
 {
     public class PlcEventStore
     {
+        private int _currentPalletId = 0;
+        private readonly object _palletIdLock = new object();
+
         public event Action<ushort>? TriggerDetected1;
         public void OnTriggerDetected1(ushort inspectionId)
         {
@@ -36,6 +39,22 @@ namespace ChepInlineApp.Stores
         public void OnTriggerDetected5(ushort inspectionId)
         {
             TriggerDetected5?.Invoke(inspectionId);
+        }
+
+        public void SetCurrentPalletId(int palletId)
+        {
+            lock (_palletIdLock)
+            {
+                _currentPalletId = palletId;
+            }
+        }
+
+        public int GetCurrentPalletId()
+        {
+            lock (_palletIdLock)
+            {
+                return _currentPalletId;
+            }
         }
     }
 }

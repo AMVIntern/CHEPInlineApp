@@ -24,6 +24,7 @@ namespace ChepInlineApp.Comms
         private const string PlcIp = "192.168.1.2";
         private const string CipPath = "1,0"; // backplane 1, slot 0
         private const string BaseTag = "CameraStation1_Control.AppTriggerIndex"; // .1 .. .5
+        private const string PalletIdTag = "L1_TA_BC2_VisionTriggerPalletID"; // DINT tag for pallet ID
 
         // per-bit edge memory (index 0..4 => triggers 1..5)
         private readonly int[] _prev = new int[5];
@@ -32,6 +33,9 @@ namespace ChepInlineApp.Comms
         private readonly DateTime[] _lastEdgeUtc = new DateTime[5];
 
         private volatile bool _synced = false; // becomes true only after a valid rising edge on trigger 1
+        
+        // Pallet ID tag
+        private Tag? _palletIdTag;
 
 
         public PlcCommsManager(PlcEventStore triggerStore) => _triggerStore = triggerStore;
@@ -89,6 +93,41 @@ namespace ChepInlineApp.Comms
                     ElementSize = 1,
                     ElementCount = 1,
                 };
+            }
+
+            // Initialize Pallet ID tag (DINT = 32-bit integer)
+            _palletIdTag = new Tag
+            {
+                Gateway = PlcIp,
+                Path = CipPath,
+                PlcType = PlcType.ControlLogix,
+                Protocol = Protocol.ab_eip,
+                Name = PalletIdTag,
+                ElementSize = 4, // DINT is 4 bytes
+                ElementCount = 1,
+            };
+
+            try
+            {
+                _palletIdTag.Initialize();
+                _palletIdTag.Read();
+                if (_palletIdTag.GetStatus() == 0)
+                {
+                    int initialPalletId = _palletIdTag.GetInt32(0);
+                    _triggerStore.SetCurrentPalletId(initialPalletId);
+                    System.Diagnostics.Debug.WriteLine($"[PLC] Pallet ID tag initialized: {initialPalletId}");
+                    AppLogger.Info("Pallet ID tag initialized: {PalletId}", initialPalletId);
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"[PLC] Init error on Pallet ID tag: status {_palletIdTag.GetStatus()}");
+                    AppLogger.Info("[Error:] Init error on Pallet ID tag: status {Status}", null, _palletIdTag.GetStatus());
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[PLC] Failed to initialize Pallet ID tag: {ex.Message}");
+                AppLogger.Info("[Error:] Failed to initialize Pallet ID tag: {Error}", ex, ex.Message);
             }
 
             var sw = Stopwatch.StartNew();
@@ -186,6 +225,9 @@ namespace ChepInlineApp.Comms
                                 _armed[i] = false; // require LOW again
                                 _lastEdgeUtc[i] = DateTime.UtcNow;
 
+                                // Read Pallet ID when trigger is detected
+                                ReadPalletId();
+
                                 // i == 0 -> trigger 1
                                 if (i == 0)
                                 {
@@ -206,7 +248,7 @@ namespace ChepInlineApp.Comms
                                     }
                                     else
                                     {
-                                        // Drop 2..5 until we’ve seen a valid 1 after a sustained LOW
+                                        // Drop 2..5 until we've seen a valid 1 after a sustained LOW
                                         // (prevents partial previous cycle from leaking into our first new cycle)
                                     }
                                 }
@@ -229,8 +271,34 @@ namespace ChepInlineApp.Comms
                 {
                     try { t?.Dispose(); } catch { /* ignore */ }
                 }
+                try { _palletIdTag?.Dispose(); } catch { /* ignore */ }
                 System.Diagnostics.Debug.WriteLine("[PLC] Monitoring stopped.");
                 AppLogger.Info("Monitoring stopped.");
+            }
+        }
+
+        private void ReadPalletId()
+        {
+            if (_palletIdTag == null) return;
+
+            try
+            {
+                _palletIdTag.Read();
+                var status = _palletIdTag.GetStatus();
+                if (status == 0)
+                {
+                    int palletId = _palletIdTag.GetInt32(0);
+                    _triggerStore.SetCurrentPalletId(palletId);
+                    System.Diagnostics.Debug.WriteLine($"[PLC] Pallet ID read: {palletId}");
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"[PLC] Failed to read Pallet ID: status {status}");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[PLC] Exception reading Pallet ID: {ex.Message}");
             }
         }
 

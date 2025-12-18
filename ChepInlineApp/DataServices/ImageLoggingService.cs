@@ -12,7 +12,7 @@ namespace ChepInlineApp.DataServices
     public class ImageLoggingService
     {
         private readonly string _baseDirectory = @"C:\AMV\ImageLogs";
-        public async Task LogAsync(HImage image, long timestamp, string cameraName, string result = "Good", double confidence = 0.0, string format = "tiff")
+        public async Task<string?> LogAsync(HImage image, long timestamp, string cameraName, string result = "Good", double confidence = 0.0, string format = "tiff")
         {
             try
             {
@@ -32,10 +32,13 @@ namespace ChepInlineApp.DataServices
                 {
                     image.WriteImage(format, 0, fullPath);
                 });
+
+                return fullPath;
             }
             catch (Exception ex)
             {
                 AppLogger.Error($"Failed to log image for {cameraName}", ex);
+                return null;
             }
         }
         private string GetExtension(string format)

@@ -1,6 +1,7 @@
 ﻿using ChepInlineApp.AppCycleManager;
 using ChepInlineApp.DataServices;
 using ChepInlineApp.Helpers;
+using ChepInlineApp.MetadataExporter.Services;
 using ChepInlineApp.Stores;
 using ChepInlineApp.ViewModels;
 using HalconDotNet;
@@ -17,6 +18,7 @@ namespace ChepInlineApp.Vision.Coordinator
         private readonly MultiCameraImageStore _imageStore;
         private readonly Dictionary<string, CameraViewModel> _cameraViewModels;
         private readonly ImageLogger _imageLogger;
+        private readonly ImageCaptureCsvWriter _csvWriter;
         private readonly TriggerSessionManager _triggerSessionManager;
         private readonly HomeViewModel? _homeViewModel;
 
@@ -25,6 +27,7 @@ namespace ChepInlineApp.Vision.Coordinator
             MultiCameraImageStore imageStore,
             Dictionary<string, CameraViewModel> cameraViewModels,
             ImageLogger imageLogger,
+            ImageCaptureCsvWriter csvWriter,
             TriggerSessionManager triggerSessionManager,
             HomeViewModel? homeViewModel = null)
         {
@@ -32,6 +35,7 @@ namespace ChepInlineApp.Vision.Coordinator
             _imageStore = imageStore;
             _cameraViewModels = cameraViewModels;
             _imageLogger = imageLogger;
+            _csvWriter = csvWriter;
             _triggerSessionManager = triggerSessionManager;
             _homeViewModel = homeViewModel;
             
@@ -239,7 +243,13 @@ namespace ChepInlineApp.Vision.Coordinator
                     
                     // Clone the image for logging to avoid disposal issues
                     HImage imageToLog = image.Clone();
-                    _ = _imageLogger.LogIfEnabledAsync(imageToLog, timestamp, cameraId, result, confidence, "tiff");
+                    string? imagePath = await _imageLogger.LogIfEnabledAsync(imageToLog, timestamp, cameraId, result, confidence, "tiff");
+                    
+                    // Write to CSV if image was logged
+                    if (!string.IsNullOrEmpty(imagePath))
+                    {
+                        await _csvWriter.WriteImageCaptureAsync(imagePath, timestamp, "tag123");
+                    }
                 }
                 catch (Exception ex)
                 {

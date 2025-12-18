@@ -26,18 +26,20 @@ namespace ChepInlineApp.ViewModels
         public bool IsModalOpen => _modalStore.IsModalOpen;
         private readonly MultiCameraImageStore _imageStore;
         private readonly ImageLogger _imageLogger;
+        private readonly ChepInlineApp.MetadataExporter.Services.ImageCaptureCsvWriter _csvWriter;
         private readonly TriggerSessionManager _triggerSessionManager;
         private readonly NavigationBarViewModel _navigationBarViewModel;
 
         public NavigationBarViewModel NavigationBarViewModel => _navigationBarViewModel;
 
         public MainWindowViewModel(NavigationStore navigationStore, HomeViewModel homeViewModel,
-            SettingsViewModel settingsViewModel,ModalStore modalStore, MultiCameraImageStore imageStore,ImageLogger imageLogger, TriggerSessionManager triggerSessionManager, NavigationBarViewModel navigationBarViewModel) 
+            SettingsViewModel settingsViewModel,ModalStore modalStore, MultiCameraImageStore imageStore,ImageLogger imageLogger, ChepInlineApp.MetadataExporter.Services.ImageCaptureCsvWriter csvWriter, TriggerSessionManager triggerSessionManager, NavigationBarViewModel navigationBarViewModel) 
         { 
             _navigationStore = navigationStore;
             _homeViewModel = homeViewModel;
             _modalStore = modalStore;
             _imageLogger = imageLogger;
+            _csvWriter = csvWriter;
             _triggerSessionManager = triggerSessionManager;
             _imageStore = imageStore;
             _navigationBarViewModel = navigationBarViewModel;
@@ -50,7 +52,7 @@ namespace ChepInlineApp.ViewModels
             {
                 { "Station1_Cam1", homeViewModel.Station1_Cam1 },
             };
-            var bootstrapper = new InspectionBoostrapper(imageStore, cameraViewModels, imageLogger, triggerSessionManager, settingsViewModel, homeViewModel);
+            var bootstrapper = new InspectionBoostrapper(imageStore, cameraViewModels, imageLogger, csvWriter, triggerSessionManager, settingsViewModel, homeViewModel);
         }
         private void NavigationStore_CurrentViewModelChanged()
         {

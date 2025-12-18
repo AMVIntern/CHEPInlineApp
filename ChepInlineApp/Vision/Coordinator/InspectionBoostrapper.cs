@@ -1,5 +1,6 @@
 ﻿using ChepInlineApp.AppCycleManager;
 using ChepInlineApp.DataServices;
+using ChepInlineApp.MetadataExporter.Services;
 using ChepInlineApp.Stores;
 using ChepInlineApp.ViewModels;
 using ChepInlineApp.Vision.HalconProcedures;
@@ -20,7 +21,7 @@ namespace ChepInlineApp.Vision.Coordinator
 
         public InspectionCoordinator Coordinator { get; }
 
-        public InspectionBoostrapper(MultiCameraImageStore imageStore, Dictionary<string, CameraViewModel> cameraViewModels, ImageLogger imageLogger, TriggerSessionManager triggerSessionManager, SettingsViewModel settingsViewModel, HomeViewModel? homeViewModel = null)
+        public InspectionBoostrapper(MultiCameraImageStore imageStore, Dictionary<string, CameraViewModel> cameraViewModels, ImageLogger imageLogger, ImageCaptureCsvWriter csvWriter, TriggerSessionManager triggerSessionManager, SettingsViewModel settingsViewModel, HomeViewModel? homeViewModel = null)
         {
             _triggerSessionManager = triggerSessionManager;
             _settingsViewModel = settingsViewModel;
@@ -29,7 +30,7 @@ namespace ChepInlineApp.Vision.Coordinator
             {
             };
 
-            Coordinator = new InspectionCoordinator(runners, imageStore, cameraViewModels, imageLogger, _triggerSessionManager, homeViewModel);
+            Coordinator = new InspectionCoordinator(runners, imageStore, cameraViewModels, imageLogger, csvWriter, _triggerSessionManager, homeViewModel);
         }
     }
 }

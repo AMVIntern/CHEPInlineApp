@@ -60,6 +60,7 @@ namespace ChepInlineApp
                     .AddSingleton<AppConfigModel>()
                     .AddSingleton<ImageLogger>()
                     .AddSingleton<ImageLoggingService>()
+                    .AddSingleton<ChepInlineApp.MetadataExporter.Services.ImageCaptureCsvWriter>()
                     .AddSingleton<TriggerSessionManager>()
                     .AddSingleton<ImageAcquisitionModel>()
                     .AddSingleton<CameraFrameGrabber>()

@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChepInlineApp", "ChepInline
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChepInlineApp.PLC", "ChepInlineApp.PLC\ChepInlineApp.PLC.csproj", "{C926498B-CF8F-447A-8A6B-5D321D4F9811}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChepInlineApp.MetadataExporter", "ChepInlineApp.MetadataExporter\ChepInlineApp.MetadataExporter.csproj", "{D9607243-85D9-4989-BCC6-AE09808E209B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{C926498B-CF8F-447A-8A6B-5D321D4F9811}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C926498B-CF8F-447A-8A6B-5D321D4F9811}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C926498B-CF8F-447A-8A6B-5D321D4F9811}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D9607243-85D9-4989-BCC6-AE09808E209B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D9607243-85D9-4989-BCC6-AE09808E209B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D9607243-85D9-4989-BCC6-AE09808E209B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D9607243-85D9-4989-BCC6-AE09808E209B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

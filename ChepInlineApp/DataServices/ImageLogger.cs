@@ -14,12 +14,12 @@ namespace ChepInlineApp.DataServices
             _imageLoggingService = imageLoggingService;
         }
 
-        public async Task LogIfEnabledAsync(HImage image, long timestamp, string cameraName, string result = "Good", double confidence = 0.0, string format = "tiff")
+        public async Task<string?> LogIfEnabledAsync(HImage image, long timestamp, string cameraName, string result = "Good", double confidence = 0.0, string format = "tiff")
         {
             if (!_appConfigModel.ShouldLog(cameraName, result))
-                return;
+                return null;
 
-            await _imageLoggingService.LogAsync(image, timestamp, cameraName, result, confidence, format);
+            return await _imageLoggingService.LogAsync(image, timestamp, cameraName, result, confidence, format);
         }
     }
 }

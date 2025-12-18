@@ -60,21 +60,15 @@ namespace ChepInlineApp.ViewModels
             _modalStore = modalStore;
 
             imageStore.RegisterCamera("Station1_Cam1", "Camera 1");
-            imageStore.RegisterCamera("Station1_Cam2", "Camera 2");
-            imageStore.RegisterCamera("Station1_Cam3", "Camera 3");
-            imageStore.RegisterCamera("Station1_Cam4", "Camera 4");
 
             Station1_Cam1 = new CameraViewModel("Station1_Cam1", _imageStore, _navigationStore, this, _triggerSessionManager);
-            Station1_Cam2 = new CameraViewModel("Station1_Cam2", _imageStore, _navigationStore, this, _triggerSessionManager);
-            Station1_Cam3 = new CameraViewModel("Station1_Cam3", _imageStore, _navigationStore, this, _triggerSessionManager);
-            Station1_Cam4 = new CameraViewModel("Station1_Cam4", _imageStore, _navigationStore, this, _triggerSessionManager);
+            Station1_Cam2 = new CameraViewModel("Station1_Cam1", _imageStore, _navigationStore, this, _triggerSessionManager); // Keep for compatibility
+            Station1_Cam3 = new CameraViewModel("Station1_Cam1", _imageStore, _navigationStore, this, _triggerSessionManager); // Keep for compatibility
+            Station1_Cam4 = new CameraViewModel("Station1_Cam1", _imageStore, _navigationStore, this, _triggerSessionManager); // Keep for compatibility
 
             if (AppEnvironment.IsOfflineMode)
             {
                 _imageSources.Add(new FolderImageLoader(Path.Combine(PathConfig.LocalImagePath, "Station1_Cam1"), _imageStore, "Station1_Cam1", _imageLogger));
-                _imageSources.Add(new FolderImageLoader(Path.Combine(PathConfig.LocalImagePath, "Station1_Cam2"), _imageStore, "Station1_Cam2", _imageLogger));
-                _imageSources.Add(new FolderImageLoader(Path.Combine(PathConfig.LocalImagePath, "Station1_Cam3"), _imageStore, "Station1_Cam3", _imageLogger));
-                _imageSources.Add(new FolderImageLoader(Path.Combine(PathConfig.LocalImagePath, "Station1_Cam4"), _imageStore, "Station1_Cam4", _imageLogger));
 
                 _syncTimer = new System.Windows.Threading.DispatcherTimer
                 {
@@ -95,9 +89,6 @@ namespace ChepInlineApp.ViewModels
             else
             {
                 TryRegisterCamera("Station1_Cam1", 0.0, Station1_Cam1);
-                TryRegisterCamera("Station1_Cam2", 0.0, Station1_Cam2);
-                TryRegisterCamera("Station1_Cam3", 0.0, Station1_Cam3);
-                TryRegisterCamera("Station1_Cam4", 0.0, Station1_Cam4);
             }
         }
         private void TryRegisterCamera(string cameraId, double rotation, CameraViewModel viewModel)
@@ -166,9 +157,9 @@ namespace ChepInlineApp.ViewModels
         public CameraViewModel? GetCameraViewModel(string cameraId) => cameraId switch
         {
             "Station1_Cam1" => Station1_Cam1,
-            "Station1_Cam2" => Station1_Cam2,
-            "Station1_Cam3" => Station1_Cam3,
-            "Station1_Cam4" => Station1_Cam4,
+            "Station1_Cam2" => Station1_Cam1, // Map to single camera
+            "Station1_Cam3" => Station1_Cam1, // Map to single camera
+            "Station1_Cam4" => Station1_Cam1, // Map to single camera
             _ => null
         };
 

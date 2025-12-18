@@ -37,6 +37,15 @@ namespace ChepInlineApp.ViewModels
         [ObservableProperty]
         private bool showStatusIndicator = true;
 
+        [ObservableProperty]
+        private bool? inspectionPassed; // null = no result yet, true = good, false = bad
+
+        [ObservableProperty]
+        private bool isInspecting = false;
+
+        [ObservableProperty]
+        private string inspectionMessage = "Waiting for inspection...";
+
         private readonly HomeViewModel _homeViewModel;
         private readonly MultiCameraImageStore _imageStore;
         private readonly NavigationStore _navigationStore;

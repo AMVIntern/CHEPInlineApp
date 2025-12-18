@@ -13,13 +13,19 @@ namespace ChepInlineApp.Resources
     {
         public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
+            // Handle null (covers null bool? values)
+            if (value == null)
+            {
+                return Visibility.Collapsed;
+            }
+
+            // Handle bool (works for both bool and non-null bool? values)
             if (value is bool boolValue)
             {
                 return boolValue ? Visibility.Visible : Visibility.Collapsed;
             }
 
-            return DependencyProperty.UnsetValue;
-
+            return Visibility.Collapsed;
         }
         public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         {

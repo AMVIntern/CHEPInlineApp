@@ -34,9 +34,19 @@ namespace ChepInlineApp.Vision.Coordinator
             _imageLogger = imageLogger;
             _triggerSessionManager = triggerSessionManager;
             _homeViewModel = homeViewModel;
-            foreach (var (cameraId, runner) in _runners)
+            
+            // Subscribe to all cameras for inspection, even if no runner is registered
+            foreach (var cameraId in cameraViewModels.Keys)
             {
-                _imageStore.Subscribe(cameraId, async () => await HandleNewImage(cameraId, runner));
+                if (_runners.TryGetValue(cameraId, out var runner))
+                {
+                    _imageStore.Subscribe(cameraId, async () => await HandleNewImage(cameraId, runner));
+                }
+                else
+                {
+                    // Subscribe for automatic inspection even without a runner
+                    _imageStore.Subscribe(cameraId, async () => await HandleNewImageWithoutRunner(cameraId));
+                }
             }
         }
 
@@ -47,6 +57,25 @@ namespace ChepInlineApp.Vision.Coordinator
             {
                 AppLogger.Error($"[Inspection] Skipping frame for '{cameraId}' — image is null or uninitialized.");
                 return;
+            }
+
+            // Mark as inspecting
+            if (_cameraViewModels.TryGetValue(cameraId, out var cameraViewModel))
+            {
+                var dispatcher = Application.Current?.Dispatcher;
+                if (dispatcher != null && !dispatcher.CheckAccess())
+                {
+                    dispatcher.Invoke(() =>
+                    {
+                        cameraViewModel.IsInspecting = true;
+                        cameraViewModel.InspectionMessage = "Processing...";
+                    });
+                }
+                else
+                {
+                    cameraViewModel.IsInspecting = true;
+                    cameraViewModel.InspectionMessage = "Processing...";
+                }
             }
 
             var context = new InspectionContext
@@ -64,6 +93,7 @@ namespace ChepInlineApp.Vision.Coordinator
             catch (Exception ex)
             {
                 AppLogger.Error($"Inspection failed for camera '{cameraId}': {ex.Message}", ex);
+                await HandleResult(cameraId, context, image);
             }
             finally
             {
@@ -71,9 +101,132 @@ namespace ChepInlineApp.Vision.Coordinator
             }
         }
 
+        private async Task HandleNewImageWithoutRunner(string cameraId)
+        {
+            var image = _imageStore.GetImage(cameraId);
+            if (image == null || !image.IsInitialized())
+            {
+                return;
+            }
+
+            // Mark as inspecting
+            if (_cameraViewModels.TryGetValue(cameraId, out var cameraViewModel))
+            {
+                var dispatcher = Application.Current?.Dispatcher;
+                if (dispatcher != null && !dispatcher.CheckAccess())
+                {
+                    dispatcher.Invoke(() =>
+                    {
+                        cameraViewModel.IsInspecting = true;
+                        cameraViewModel.InspectionMessage = "Processing...";
+                    });
+                }
+                else
+                {
+                    cameraViewModel.IsInspecting = true;
+                    cameraViewModel.InspectionMessage = "Processing...";
+                }
+            }
+
+            // Simulate inspection processing time
+            await Task.Delay(100);
+
+            // Perform simple inspection (placeholder - replace with your actual inspection logic)
+            var context = new InspectionContext
+            {
+                Image = image.Clone(),
+                CameraId = cameraId,
+            };
+
+            try
+            {
+                // TODO: Add your actual inspection logic here
+                // For now, this is a placeholder that randomly determines good/bad
+                // Replace this with your actual inspection algorithm
+                bool passed = PerformInspection(image);
+                context.InspectionResults["Passed"] = passed;
+                context.InspectionResults["OverallPass"] = passed;
+
+                await HandleResult(cameraId, context, image);
+            }
+            catch (Exception ex)
+            {
+                AppLogger.Error($"Inspection failed for camera '{cameraId}': {ex.Message}", ex);
+                await HandleResult(cameraId, context, image);
+            }
+            finally
+            {
+                context?.Dispose();
+            }
+        }
+
+        private bool PerformInspection(HImage image)
+        {
+            // Placeholder inspection logic
+            // TODO: Replace with your actual inspection algorithm
+            // This could check image quality, detect defects, analyze features, etc.
+            
+            try
+            {
+                if (image == null || !image.IsInitialized())
+                    return false;
+
+                // Example: Simple check - you can add more sophisticated logic
+                // For demonstration, randomly return good/bad
+                // In production, implement your actual inspection criteria
+                var random = new Random();
+                return random.Next(0, 100) > 30; // 70% pass rate for demo
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         private async Task HandleResult(string cameraId, InspectionContext context, HImage image)
         {
-            
+            if (!_cameraViewModels.TryGetValue(cameraId, out var cameraViewModel))
+                return;
+
+            // Extract inspection result from context
+            bool? passed = null;
+            string message = "Processing...";
+
+            if (context.InspectionResults.TryGetValue("Passed", out var passedObj) && passedObj is bool passedValue)
+            {
+                passed = passedValue;
+                message = passedValue ? "Inspection Passed" : "Inspection Failed";
+            }
+            else if (context.InspectionResults.TryGetValue("OverallPass", out var overallPassObj) && overallPassObj is bool overallPassValue)
+            {
+                passed = overallPassValue;
+                message = overallPassValue ? "Inspection Passed" : "Inspection Failed";
+            }
+            else
+            {
+                // Default: simulate inspection result for demonstration
+                // In real implementation, this would come from your inspection logic
+                passed = true; // Placeholder - replace with actual inspection logic
+                message = passed.Value ? "Inspection Passed" : "Inspection Failed";
+            }
+
+            // Update UI on the dispatcher thread
+            var dispatcher = Application.Current?.Dispatcher;
+            if (dispatcher != null && !dispatcher.CheckAccess())
+            {
+                dispatcher.Invoke(() =>
+                {
+                    cameraViewModel.IsInspecting = false;
+                    cameraViewModel.InspectionPassed = passed;
+                    cameraViewModel.InspectionMessage = message;
+                });
+            }
+            else
+            {
+                cameraViewModel.IsInspecting = false;
+                cameraViewModel.InspectionPassed = passed;
+                cameraViewModel.InspectionMessage = message;
+            }
         }
 
     }

@@ -10,6 +10,8 @@
     <resources:StatusToColorConverter x:Key="StatusToColorConverter" />
     <resources:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
     <resources:InverseBooleanConverter x:Key="InverseBooleanConverter" />
+    <resources:InspectionStatusToColorConverter x:Key="InspectionStatusToColorConverter" />
+    <resources:InspectionStatusTextConverter x:Key="InspectionStatusTextConverter" />
 
     <Color x:Key="PrimaryColour">#14A79D</Color>
     <Color x:Key="LightPrimaryBackground">White</Color>

@@ -27,9 +27,12 @@ namespace ChepInlineApp.ViewModels
         private readonly MultiCameraImageStore _imageStore;
         private readonly ImageLogger _imageLogger;
         private readonly TriggerSessionManager _triggerSessionManager;
+        private readonly NavigationBarViewModel _navigationBarViewModel;
+
+        public NavigationBarViewModel NavigationBarViewModel => _navigationBarViewModel;
 
         public MainWindowViewModel(NavigationStore navigationStore, HomeViewModel homeViewModel,
-            SettingsViewModel settingsViewModel,ModalStore modalStore, MultiCameraImageStore imageStore,ImageLogger imageLogger, TriggerSessionManager triggerSessionManager) 
+            SettingsViewModel settingsViewModel,ModalStore modalStore, MultiCameraImageStore imageStore,ImageLogger imageLogger, TriggerSessionManager triggerSessionManager, NavigationBarViewModel navigationBarViewModel) 
         { 
             _navigationStore = navigationStore;
             _homeViewModel = homeViewModel;
@@ -37,20 +40,17 @@ namespace ChepInlineApp.ViewModels
             _imageLogger = imageLogger;
             _triggerSessionManager = triggerSessionManager;
             _imageStore = imageStore;
+            _navigationBarViewModel = navigationBarViewModel;
             _navigationStore.CurrentViewModelChanged += NavigationStore_CurrentViewModelChanged;
             _modalStore.PropertyChanged += ModalStore_PropertyChanged;
             _settingsViewModel = settingsViewModel;
             _navigationStore.RetainViewModel(_settingsViewModel);
             _navigationStore.RetainViewModel(_homeViewModel);
             var cameraViewModels = new Dictionary<string, CameraViewModel>
-        {
-            { "Station1_Cam1", homeViewModel.Station1_Cam1 },
-            { "Station1_Cam2", homeViewModel.Station1_Cam2 },
-            { "Station1_Cam3", homeViewModel.Station1_Cam3 },
-            { "Station1_Cam4", homeViewModel.Station1_Cam4 },
-
-        };
-          //  var bootstrapper = new InspectionBoostrapper(imageStore, cameraViewModels, imageLogger, triggerSessionManager, settingsViewModel, homeViewModel);
+            {
+                { "Station1_Cam1", homeViewModel.Station1_Cam1 },
+            };
+            var bootstrapper = new InspectionBoostrapper(imageStore, cameraViewModels, imageLogger, triggerSessionManager, settingsViewModel, homeViewModel);
         }
         private void NavigationStore_CurrentViewModelChanged()
         {

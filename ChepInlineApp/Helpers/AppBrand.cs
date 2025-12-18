@@ -9,7 +9,7 @@ namespace ChepInlineApp.Helpers
     public static class AppBrand
     {
         public static string AppName => "ChepInlineApp";
-        public static string AppFolderName => "ChepInlineAppApp";
+        public static string AppFolderName => "ChepInlineApp";
         public static string Publisher => "AMV";
         public const string Version = "0.0";
 

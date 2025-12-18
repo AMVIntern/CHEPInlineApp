@@ -224,9 +224,6 @@ namespace ChepInlineApp.ImageSources
                 _imageStore.SetCameraCenter(_cameraId, centerX, centerY);
                 Debug.WriteLine($"[{_cameraId}] CenterX={centerX}, CenterY={centerY}");
                 
-                // Draw dotted line through center
-                hImage = DrawDottedCenterLine(hImage, width, height, centerX, centerY);
-                
                 AppLogger.Info($"[CAPTURE:OK] cam={_cameraId} via GrabImage (continuous)");
                 return hImage;
             }
@@ -242,64 +239,6 @@ namespace ChepInlineApp.ImageSources
                     AppLogger.Error($"[CAPTURE:EXC] cam={_cameraId} ex={ex.GetType().Name}");
                 }
                 throw;
-            }
-        }
-
-        private HImage DrawDottedCenterLine(HImage image, int width, int height, double centerX, double centerY)
-        {
-            try
-            {
-                // Create horizontal dotted line through center Y with thicker line
-                int dotLength = 15;
-                int gapLength = 5;
-                int lineThickness = 3; // Make line 3 pixels thick for better visibility
-
-                int centerYInt = (int)Math.Round(centerY);
-                Debug.WriteLine($"[{_cameraId}] Drawing dotted line at Y={centerYInt}, width={width}");
-                AppLogger.Info($"[DrawLine] Drawing line for {_cameraId} at Y={centerYInt}, width={width}");
-
-                HImage resultImage = image.Clone();
-
-                Debug.WriteLine($"[{_cameraId}] Processing color image - painting on RGB channels");
-                HImage redChannel = image.Decompose3(out HImage greenChannel, out HImage blueChannel);
-
-                // Draw horizontal dotted line through center Y - paint each segment directly
-                int currentX = 0;
-                while (currentX < width)
-                {
-                    int endX = Math.Min(currentX + dotLength, width);
-                    // Create rectangle region for each dot segment (thicker than line)
-                    int topY = Math.Max(0, centerYInt - lineThickness / 2);
-                    int bottomY = Math.Min(height - 1, centerYInt + lineThickness / 2);
-                    HOperatorSet.GenRectangle1(out HObject rect, topY, currentX, bottomY, endX);
-                    HRegion segment = new HRegion(rect);
-
-                    // Paint white (255) on all channels for this segment
-                    redChannel = redChannel.PaintRegion(segment, new HTuple(255), "fill");
-                    greenChannel = greenChannel.PaintRegion(segment, new HTuple(255), "fill");
-                    blueChannel = blueChannel.PaintRegion(segment, new HTuple(255), "fill");
-
-                    segment.Dispose();
-                    currentX = endX + gapLength;
-                }
-
-                // Compose back to color image once after all segments are painted
-                resultImage = redChannel.Compose3(greenChannel, blueChannel);
-
-                // Dispose intermediate images
-                redChannel.Dispose();
-                greenChannel.Dispose();
-                blueChannel.Dispose();
-                image.Dispose();
-
-                Debug.WriteLine($"[{_cameraId}] Line painted successfully");
-                return resultImage;
-            }
-            catch (Exception ex)
-            {
-                AppLogger.Error($"Failed to draw dotted line for {_cameraId}: {ex.Message}", ex);
-                Debug.WriteLine($"Exception in DrawDottedCenterLine: {ex}");
-                return image;
             }
         }
 

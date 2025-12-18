@@ -5,60 +5,149 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ChepInlineApp.Views"
              xmlns:enums="clr-namespace:ChepInlineApp.Enums"
+             xmlns:resources="clr-namespace:ChepInlineApp.Resources"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid Margin="10">
+    <Grid Margin="20">
         <Grid.RowDefinitions>
-            <RowDefinition Height="2*"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
     
-        <local:ImageView Grid.Column="0" Grid.Row="0"
-                         Title="{Binding Station1_Cam1.Title}"
-                         Status="{Binding Station1_Cam1.Status}"
-                         Image="{Binding Station1_Cam1.Image}"/>
 
-        <local:ImageView Grid.Column="1" Grid.Row="0"
-                         Title="{Binding Station1_Cam2.Title}"
-                         Status="{Binding Station1_Cam2.Status}"
-                         Image="{Binding Station1_Cam2.Image}"/>
-
-        <local:ImageView  Grid.Column="2" Grid.Row="0"
-                         Title="{Binding Station1_Cam3.Title}"
-                         Status="{Binding Station1_Cam3.Status}"
-                         Image="{Binding Station1_Cam3.Image}"/>
-
-        <local:ImageView  Grid.Column="3" Grid.Row="0"
-                         Title="{Binding Station1_Cam4.Title}"
-                         Status="{Binding Station1_Cam4.Status}"
-                         Image="{Binding Station1_Cam4.Image}"/>
-
-
-        <StackPanel Grid.Row="1"
-            Grid.Column="0"
-            Grid.ColumnSpan="4"
-            Orientation="Horizontal"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Bottom"
-            Margin="0,0,0,40">
-            <Button Width="150" Command="{Binding HomeButtonCommand}"
-                    Style="{StaticResource NavigationPrimaryButton}"
-                    Content="Home" />
-
-            <Button Width="150" Command="{Binding RecipeManagerButtonCommand}"
-                    Style="{StaticResource NavigationPrimaryButton}"
-                    Content="Settings" />
-
-            <Button Width="150" Command="{Binding ExitApplicationButtonCommand}"
-                    Style="{StaticResource NavigationPrimaryButton}"
-                    Content="Exit" />
+        <!-- Inspection Status Checkboxes -->
+        <StackPanel Grid.Row="1" 
+                    Orientation="Horizontal" 
+                    HorizontalAlignment="Center"
+                    Margin="0,0,0,15">
+            <!-- Good Checkbox -->
+            <Border Background="#1a1a1a"
+                    BorderBrush="#4CAF50"
+                    BorderThickness="3"
+                    CornerRadius="10"
+                    Padding="25,18"
+                    Margin="0,0,25,0"
+                    MinWidth="200">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <!-- Checkbox Border -->
+                    <Border Grid.Column="0"
+                            Width="50"
+                            Height="50"
+                            BorderBrush="#4CAF50"
+                            BorderThickness="4"
+                            CornerRadius="6"
+                            Margin="0,0,20,0"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Station1_Cam1.InspectionPassed}" Value="True">
+                                        <Setter Property="Background" Value="#4CAF50"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <!-- Tick Mark - Centered and Larger -->
+                        <Viewbox Visibility="{Binding Station1_Cam1.InspectionPassed, Converter={StaticResource BoolToVisibilityConverter}}"
+                                 Width="30"
+                                 Height="30"
+                                 HorizontalAlignment="Center"
+                                 VerticalAlignment="Center">
+                            <Path Data="M 5,12 L 12,19 L 25,6"
+                                  Stroke="White"
+                                  StrokeThickness="3"
+                                  Stretch="Uniform"/>
+                        </Viewbox>
+                    </Border>
+                    
+                    <!-- Good Label -->
+                    <TextBlock Grid.Column="1"
+                               Text="Good"
+                               FontSize="24"
+                               FontWeight="Bold"
+                               Foreground="White"
+                               VerticalAlignment="Center"/>
+                </Grid>
+            </Border>
+            
+            <!-- Bad Checkbox -->
+            <Border Background="#1a1a1a"
+                    BorderBrush="#F44336"
+                    BorderThickness="3"
+                    CornerRadius="10"
+                    Padding="25,18"
+                    MinWidth="200">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <!-- Checkbox Border -->
+                    <Border Grid.Column="0"
+                            Width="50"
+                            Height="50"
+                            BorderBrush="#F44336"
+                            BorderThickness="4"
+                            CornerRadius="6"
+                            Margin="0,0,20,0"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Station1_Cam1.InspectionPassed}" Value="False">
+                                        <Setter Property="Background" Value="#F44336"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <!-- Cross Mark - Centered and Larger -->
+                        <Viewbox Visibility="{Binding Station1_Cam1.InspectionPassed, Converter={StaticResource InverseBoolToVisibilityConverter}}"
+                                 Width="30"
+                                 Height="30"
+                                 HorizontalAlignment="Center"
+                                 VerticalAlignment="Center">
+                            <Grid>
+                                <Path Data="M 5,5 L 25,25"
+                                      Stroke="White"
+                                      StrokeThickness="3"/>
+                                <Path Data="M 25,5 L 5,25"
+                                      Stroke="White"
+                                      StrokeThickness="3"/>
+                            </Grid>
+                        </Viewbox>
+                    </Border>
+                    
+                    <!-- Bad Label -->
+                    <TextBlock Grid.Column="1"
+                               Text="Bad"
+                               FontSize="24"
+                               FontWeight="Bold"
+                               Foreground="White"
+                               VerticalAlignment="Center"/>
+                </Grid>
+            </Border>
         </StackPanel>
 
+        <!-- Main Camera View -->
+        <Border Grid.Row="2"
+                Background="#1a1a1a"
+                BorderBrush="{StaticResource PrimaryBorder}"
+                BorderThickness="3"
+                CornerRadius="12">
+            <local:ImageView Title="{Binding Station1_Cam1.Title}"
+                             Status="{Binding Station1_Cam1.Status}"
+                             Image="{Binding Station1_Cam1.Image}"/>
+        </Border>      
     </Grid>
 </UserControl>

@@ -68,7 +68,17 @@ namespace ChepInlineApp
                     .AddSingleton<ModalStore>()
                     .AddSingleton<InspectionContext>()
                     .AddSingleton<ImageAcquisitionModel>()
-                    .AddSingleton<ImageAcquisitionViewModel>();
+                    .AddSingleton<ImageAcquisitionViewModel>()
+                    .AddSingleton<NavigationBarViewModel>(provider =>
+                    {
+                        var navigationStore = provider.GetRequiredService<NavigationStore>();
+                        var modalStore = provider.GetRequiredService<ModalStore>();
+                        return new NavigationBarViewModel(
+                            navigationStore,
+                            () => provider.GetRequiredService<HomeViewModel>(),
+                            () => provider.GetRequiredService<SettingsViewModel>(),
+                            modalStore);
+                    });
                 }).Build();
         }
         protected override async void OnStartup(StartupEventArgs e)

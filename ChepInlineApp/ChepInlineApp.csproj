@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
+    <TargetFramework>net9.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="libplctag" Version="1.5.2" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0" />
     <PackageReference Include="MVTec.HalconDotNet-Windows" Version="25050.0.0" />
 	<PackageReference Include="Serilog" Version="4.3.0" />
@@ -35,5 +36,8 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <Folder Include="Vision\Handlers\Steps\" />
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\ChepInlineApp.PLC\ChepInlineApp.PLC.csproj" />
 	</ItemGroup>
 </Project>

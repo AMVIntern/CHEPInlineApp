@@ -227,6 +227,25 @@ namespace ChepInlineApp.Vision.Coordinator
                 cameraViewModel.InspectionPassed = passed;
                 cameraViewModel.InspectionMessage = message;
             }
+
+            // Log the image with inspection result
+            if (image != null && image.IsInitialized() && passed.HasValue)
+            {
+                try
+                {
+                    long timestamp = _imageStore.GetTimestamp(cameraId);
+                    string result = passed.Value ? "Good" : "Bad";
+                    double confidence = passed.Value ? 1.0 : 0.0; // You can extract actual confidence from context if available
+                    
+                    // Clone the image for logging to avoid disposal issues
+                    HImage imageToLog = image.Clone();
+                    _ = _imageLogger.LogIfEnabledAsync(imageToLog, timestamp, cameraId, result, confidence, "tiff");
+                }
+                catch (Exception ex)
+                {
+                    AppLogger.Error($"Failed to log image for {cameraId}: {ex.Message}", ex);
+                }
+            }
         }
 
     }

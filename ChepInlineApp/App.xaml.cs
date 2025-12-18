@@ -1,4 +1,5 @@
 ﻿using ChepInlineApp.AppCycleManager;
+using ChepInlineApp.Comms;
 using ChepInlineApp.DataServices;
 using ChepInlineApp.Helpers;
 using ChepInlineApp.ImageSources;
@@ -43,7 +44,7 @@ namespace ChepInlineApp
                         var cameraFrameGrabber = provider.GetRequiredService<CameraFrameGrabber>();
                         var triggerSessionManager = provider.GetRequiredService<TriggerSessionManager>();
                         var modalStore = provider.GetRequiredService<ModalStore>();
-                        
+                        var plcEventStore = provider.GetRequiredService<PlcEventStore>();   
                         return new HomeViewModel(
                             navigationStore,
                             imageStore,
@@ -52,7 +53,8 @@ namespace ChepInlineApp
                             cameraFrameGrabber,
                             triggerSessionManager,
                             () => provider.GetRequiredService<SettingsViewModel>(),
-                            modalStore);
+                            modalStore,
+                            plcEventStore);
                     })
                     .AddSingleton<MultiCameraImageStore>()
                     .AddSingleton<AppConfigModel>()
@@ -69,6 +71,9 @@ namespace ChepInlineApp
                     .AddSingleton<InspectionContext>()
                     .AddSingleton<ImageAcquisitionModel>()
                     .AddSingleton<ImageAcquisitionViewModel>()
+                    .AddSingleton<TriggerStore>()
+                    .AddSingleton<PlcEventStore>()
+                    .AddSingleton<PlcCommsManager>()
                     .AddSingleton<NavigationBarViewModel>(provider =>
                     {
                         var navigationStore = provider.GetRequiredService<NavigationStore>();

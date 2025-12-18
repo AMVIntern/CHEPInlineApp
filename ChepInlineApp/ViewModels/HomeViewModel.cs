@@ -10,11 +10,12 @@ using ChepInlineApp.Navigation.Stores;
 using ChepInlineApp.Stores;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using System.Diagnostics;
-using System.Windows;
 using OpenCvSharp;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading.Channels;
+using System.Windows;
 
 namespace ChepInlineApp.ViewModels
 {
@@ -36,7 +37,7 @@ namespace ChepInlineApp.ViewModels
         private readonly CameraFrameGrabber _cameraFrameGrabber;
         private readonly TriggerSessionManager _triggerSessionManager;
         private readonly CancellationTokenSource _cts = new();
-
+        private readonly PlcEventStore _plcEventStore;
         [ObservableProperty]
         private string[]? barcodeResults;
 
@@ -48,7 +49,7 @@ namespace ChepInlineApp.ViewModels
 
         public HomeViewModel(NavigationStore navigationStore, MultiCameraImageStore imageStore, ImageLogger imageLogger, 
             ImageAcquisitionModel imageAcquisitionModel, CameraFrameGrabber cameraFrameGrabber, TriggerSessionManager triggerSessionManager,
-            Func<SettingsViewModel> getSettingsViewModel, ModalStore modalStore)
+            Func<SettingsViewModel> getSettingsViewModel, ModalStore modalStore, PlcEventStore plcEventStore)
         {
             _navigationStore = navigationStore;
             _imageStore = imageStore;
@@ -58,6 +59,7 @@ namespace ChepInlineApp.ViewModels
             _triggerSessionManager = triggerSessionManager;
             _getSettingsViewModel = getSettingsViewModel;
             _modalStore = modalStore;
+            _plcEventStore = plcEventStore;
 
             imageStore.RegisterCamera("Station1_Cam1", "Camera 1");
 
@@ -90,6 +92,28 @@ namespace ChepInlineApp.ViewModels
             {
                 TryRegisterCamera("Station1_Cam1", 0.0, Station1_Cam1);
             }
+
+            WirePlcHandlers();
+        }
+        private readonly Channel<(ushort trigger, DateTime ts)> _triggerQueue =
+    Channel.CreateUnbounded<(ushort, DateTime)>(new UnboundedChannelOptions
+    {
+        SingleWriter = false,
+        SingleReader = true
+    });
+
+        // Call this once during startup (after you created PlcEventStore and subscribed before)
+        private void WirePlcHandlers()
+        {
+            // Unify: push only the trigger id; time is for diagnostics
+            _plcEventStore.TriggerDetected1 += id => _triggerQueue.Writer.TryWrite((id, DateTime.Now));
+            _plcEventStore.TriggerDetected2 += id => _triggerQueue.Writer.TryWrite((id, DateTime.Now));
+            _plcEventStore.TriggerDetected3 += id => _triggerQueue.Writer.TryWrite((id, DateTime.Now));
+            _plcEventStore.TriggerDetected4 += id => _triggerQueue.Writer.TryWrite((id, DateTime.Now));
+            _plcEventStore.TriggerDetected5 += id => _triggerQueue.Writer.TryWrite((id, DateTime.Now));
+
+            // Start the single reader loop
+            //_ = Task.Run(ProcessTriggersAsync);
         }
         private void TryRegisterCamera(string cameraId, double rotation, CameraViewModel viewModel)
         {

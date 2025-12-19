@@ -49,14 +49,14 @@
                             <Style TargetType="Border">
                                 <Setter Property="Background" Value="Transparent"/>
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Station1_Cam1.InspectionPassed}" Value="True">
+                                    <DataTrigger Binding="{Binding InfeedCam.InspectionPassed}" Value="True">
                                         <Setter Property="Background" Value="#4CAF50"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </Border.Style>
                         <!-- Tick Mark - Centered and Larger -->
-                        <Viewbox Visibility="{Binding Station1_Cam1.InspectionPassed, Converter={StaticResource BoolToVisibilityConverter}}"
+                        <Viewbox Visibility="{Binding InfeedCam.InspectionPassed, Converter={StaticResource BoolToVisibilityConverter}}"
                                  Width="30"
                                  Height="30"
                                  HorizontalAlignment="Center"
@@ -105,14 +105,14 @@
                             <Style TargetType="Border">
                                 <Setter Property="Background" Value="Transparent"/>
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Station1_Cam1.InspectionPassed}" Value="False">
+                                    <DataTrigger Binding="{Binding InfeedCam.InspectionPassed}" Value="False">
                                         <Setter Property="Background" Value="#F44336"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </Border.Style>
                         <!-- Cross Mark - Centered and Larger -->
-                        <Viewbox Visibility="{Binding Station1_Cam1.InspectionPassed, Converter={StaticResource InverseBoolToVisibilityConverter}}"
+                        <Viewbox Visibility="{Binding InfeedCam.InspectionPassed, Converter={StaticResource InverseBoolToVisibilityConverter}}"
                                  Width="30"
                                  Height="30"
                                  HorizontalAlignment="Center"
@@ -145,9 +145,9 @@
                 BorderBrush="{StaticResource PrimaryBorder}"
                 BorderThickness="3"
                 CornerRadius="12">
-            <local:ImageView Title="{Binding Station1_Cam1.Title}"
-                             Status="{Binding Station1_Cam1.Status}"
-                             Image="{Binding Station1_Cam1.Image}"/>
+            <local:ImageView Title="{Binding InfeedCam.Title}"
+                             Status="{Binding InfeedCam.Status}"
+                             Image="{Binding InfeedCam.Image}"/>
         </Border>      
     </Grid>
 </UserControl>

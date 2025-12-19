@@ -100,6 +100,8 @@ namespace ChepInlineApp
 
             var mainWindow =  _host.Services.GetRequiredService<MainWindow>();
             mainWindow.Show();
+            var plcCommsManager = _host.Services.GetRequiredService<PlcCommsManager>();
+            await plcCommsManager.InitializeAsync();
 
             base.OnStartup(e);
         }

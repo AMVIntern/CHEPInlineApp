@@ -25,7 +25,7 @@ namespace ChepInlineApp.DataServices
 
                 Directory.CreateDirectory(basePath);
 
-                string fileName = $"{timestamp}_{cameraName}_{result}_{confidence:F2}.{GetExtension(format)}";
+                string fileName = $"{timestamp}_{cameraName}.{GetExtension(format)}";
                 string fullPath = Path.Combine(basePath, fileName);
 
                 await Task.Run(() =>

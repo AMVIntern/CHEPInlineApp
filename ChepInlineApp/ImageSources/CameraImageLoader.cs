@@ -208,38 +208,72 @@ namespace ChepInlineApp.ImageSources
 
         private HImage GrabImageContinuous(HTuple acqHandle)
         {
-            try
+            bool timeout = true;
+            HImage hImage = new HImage();
+            int retry = 1;
+            while (timeout || retry==3)
             {
-                // After grab_image_start, use grab_image to get images continuously
-                HOperatorSet.GrabImage(out HObject img, acqHandle);
-                HImage hImage = new HImage(img);
-                hImage.GetImageSize(out int width, out int height);
-                Debug.WriteLine($"[{_cameraId}] Width={width}, Height={height}");
-                _imageStore.SetCameraImageWidth(_cameraId, width);
-                _imageStore.SetCameraImageHeight(_cameraId, height);
-                
-                // Calculate center points
-                double centerX = width / 2.0;
-                double centerY = height / 2.0;
-                _imageStore.SetCameraCenter(_cameraId, centerX, centerY);
-                Debug.WriteLine($"[{_cameraId}] CenterX={centerX}, CenterY={centerY}");
-                
-                AppLogger.Info($"[CAPTURE:OK] cam={_cameraId} via GrabImage (continuous)");
-                return hImage;
-            }
-            catch (Exception ex)
-            {
-                if (ex is HDevEngineException hdevEx)
+                try
                 {
-                    int errorCode = hdevEx.HalconError;
-                    AppLogger.Error($"[CAPTURE:ERR] cam={_cameraId} halconError={errorCode}");
+                    // After grab_image_start, use grab_image to get images continuously
+                    HOperatorSet.GrabImage(out HObject img, acqHandle);
+                    hImage = new HImage(img);
+                    timeout = false;
+                    return hImage;
                 }
-                else
+                catch (HalconException hex)
                 {
-                    AppLogger.Error($"[CAPTURE:EXC] cam={_cameraId} ex={ex.GetType().Name}");
+                    //if (ex is HDevEngineException hdevEx)
+                    //{
+                    int errorCode = hex.GetErrorCode();
+
+                    retry++;
+                    if (errorCode == 5322)
+                        {
+                            AppLogger.Info($"[CAPTURE:TIMEOUT] cam={_cameraId} waiting for trigger");
+                            Debug.WriteLine($"[HALCON] Timeout waiting for trigger ({_cameraId})");
+                            timeout = true;
+                        }
+                        else
+                        {
+                            AppLogger.Error($"[CAPTURE:ERR] cam={_cameraId} halconError={errorCode} closing and restarting frame grabber");
+                            Debug.WriteLine($"[HALCON] Error {errorCode} on {_cameraId}: closing and restarting frame grabber");
+                            UpdateStatus(CameraStatus.Disconnected);
+                            _cameraFrameGrabber.CloseFrameGrabber(acqHandle);
+                            try
+                            {
+                                AppLogger.Info($"[CAPTURE:RESTARTED] cam={_cameraId}");
+                                _imageAcquisitionModel.AcqHandles[_cameraId] = StartLiveCamera(_cameraId);
+                                UpdateStatus(CameraStatus.Connected);
+                            }
+                            catch (Exception innerEx)
+                            {
+                                AppLogger.Error($"Failed to restart frame grabber for {_cameraId}", innerEx);
+                            }
+                            throw; // or swallow depending on your policy
+                        }
+                    //}
+                    
                 }
-                throw;
             }
+
+                AppLogger.Error($"[CAPTURE:EXC] cam={_cameraId} ");
+                Debug.WriteLine($"[HALCON] Error  on {_cameraId}: closing and restarting frame grabber");
+                UpdateStatus(CameraStatus.Disconnected);
+                _cameraFrameGrabber.CloseFrameGrabber(acqHandle);
+                try
+                {
+                    _imageAcquisitionModel.AcqHandles[_cameraId] = StartLiveCamera(_cameraId);
+                    UpdateStatus(CameraStatus.Connected);
+                    AppLogger.Info($"[CAPTURE:RESTARTED] cam={_cameraId}");
+                }
+                catch (Exception innerEx)
+                {
+                    AppLogger.Error($"Failed to restart frame grabber for {_cameraId}", innerEx);
+                }
+            
+            return hImage;
+
         }
 
         public void Dispose()

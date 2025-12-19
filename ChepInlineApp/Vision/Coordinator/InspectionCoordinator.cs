@@ -1,4 +1,5 @@
 ﻿using ChepInlineApp.AppCycleManager;
+using ChepInlineApp.Comms;
 using ChepInlineApp.DataServices;
 using ChepInlineApp.Helpers;
 using ChepInlineApp.MetadataExporter.Services;
@@ -21,6 +22,7 @@ namespace ChepInlineApp.Vision.Coordinator
         private readonly ImageCaptureCsvWriter _csvWriter;
         private readonly TriggerSessionManager _triggerSessionManager;
         private readonly PlcEventStore _plcEventStore;
+        private readonly PlcCommsManager _plcCommsManager;
         private readonly HomeViewModel? _homeViewModel;
 
         public InspectionCoordinator(
@@ -31,6 +33,7 @@ namespace ChepInlineApp.Vision.Coordinator
             ImageCaptureCsvWriter csvWriter,
             TriggerSessionManager triggerSessionManager,
             PlcEventStore plcEventStore,
+            PlcCommsManager plcCommsManager,
             HomeViewModel? homeViewModel = null)
         {
             _runners = runners;
@@ -40,8 +43,9 @@ namespace ChepInlineApp.Vision.Coordinator
             _csvWriter = csvWriter;
             _triggerSessionManager = triggerSessionManager;
             _plcEventStore = plcEventStore;
+            _plcCommsManager = plcCommsManager;
             _homeViewModel = homeViewModel;
-            
+
             // Subscribe to all cameras for inspection, even if no runner is registered
             foreach (var cameraId in cameraViewModels.Keys)
             {
@@ -172,7 +176,7 @@ namespace ChepInlineApp.Vision.Coordinator
             // Placeholder inspection logic
             // TODO: Replace with your actual inspection algorithm
             // This could check image quality, detect defects, analyze features, etc.
-            
+
             try
             {
                 if (image == null || !image.IsInitialized())
@@ -243,17 +247,17 @@ namespace ChepInlineApp.Vision.Coordinator
                     long timestamp = _imageStore.GetTimestamp(cameraId);
                     string result = passed.Value ? "Good" : "Bad";
                     double confidence = passed.Value ? 1.0 : 0.0; // You can extract actual confidence from context if available
-                    
+
                     // Clone the image for logging to avoid disposal issues
                     HImage imageToLog = image.Clone();
                     string? imagePath = await _imageLogger.LogIfEnabledAsync(imageToLog, timestamp, cameraId, result, confidence, "tiff");
-                    
+
                     // Write to CSV if image was logged
                     if (!string.IsNullOrEmpty(imagePath))
                     {
-                        // Get Pallet ID from PLC Event Store
-                        int palletId = _plcEventStore.GetCurrentPalletId();
-                        string tagId = palletId > 0 ? palletId.ToString() : "tag@123"; // Use pallet ID or fallback
+                        // Read Pallet ID from PLC on demand when new image arrives
+                        int palletId = _plcCommsManager.ReadPalletIdOnDemand();
+                        string tagId = palletId.ToString(); // Use pallet ID or fallback
                         await _csvWriter.WriteImageCaptureAsync(imagePath, timestamp, tagId);
                     }
                 }

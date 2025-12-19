@@ -28,7 +28,7 @@ namespace ChepInlineApp.ViewModels
         private readonly ImageLogger _imageLogger;
         private readonly Func<SettingsViewModel> _getSettingsViewModel;
         private readonly ModalStore _modalStore;
-        public CameraViewModel Station1_Cam1 { get; }
+        public CameraViewModel InfeedCam { get; }
         public CameraViewModel Station1_Cam2 { get; }
         public CameraViewModel Station1_Cam3 { get; }
         public CameraViewModel Station1_Cam4 { get; }
@@ -61,16 +61,16 @@ namespace ChepInlineApp.ViewModels
             _modalStore = modalStore;
             _plcEventStore = plcEventStore;
 
-            imageStore.RegisterCamera("Station1_Cam1", "Camera 1");
+            imageStore.RegisterCamera("InfeedCam", "Infeed Camera");
 
-            Station1_Cam1 = new CameraViewModel("Station1_Cam1", _imageStore, _navigationStore, this, _triggerSessionManager);
-            Station1_Cam2 = new CameraViewModel("Station1_Cam1", _imageStore, _navigationStore, this, _triggerSessionManager); // Keep for compatibility
-            Station1_Cam3 = new CameraViewModel("Station1_Cam1", _imageStore, _navigationStore, this, _triggerSessionManager); // Keep for compatibility
-            Station1_Cam4 = new CameraViewModel("Station1_Cam1", _imageStore, _navigationStore, this, _triggerSessionManager); // Keep for compatibility
+            InfeedCam = new CameraViewModel("InfeedCam", _imageStore, _navigationStore, this, _triggerSessionManager);
+            Station1_Cam2 = new CameraViewModel("InfeedCam", _imageStore, _navigationStore, this, _triggerSessionManager); // Keep for compatibility
+            Station1_Cam3 = new CameraViewModel("InfeedCam", _imageStore, _navigationStore, this, _triggerSessionManager); // Keep for compatibility
+            Station1_Cam4 = new CameraViewModel("InfeedCam", _imageStore, _navigationStore, this, _triggerSessionManager); // Keep for compatibility
 
             if (AppEnvironment.IsOfflineMode)
             {
-                _imageSources.Add(new FolderImageLoader(Path.Combine(PathConfig.LocalImagePath, "Station1_Cam1"), _imageStore, "Station1_Cam1", _imageLogger));
+                _imageSources.Add(new FolderImageLoader(Path.Combine(PathConfig.LocalImagePath, "InfeedCam"), _imageStore, "InfeedCam", _imageLogger));
 
                 _syncTimer = new System.Windows.Threading.DispatcherTimer
                 {
@@ -90,7 +90,7 @@ namespace ChepInlineApp.ViewModels
             }
             else
             {
-                TryRegisterCamera("Station1_Cam1", 0.0, Station1_Cam1);
+                TryRegisterCamera("InfeedCam", 0.0, InfeedCam);
             }
 
             WirePlcHandlers();
@@ -132,7 +132,7 @@ namespace ChepInlineApp.ViewModels
                 if (_activeCameraIds.Contains(cameraId))
                     return false;
 
-                var handle = _cameraFrameGrabber.StartFrameGrabber(cameraId, "StartCameraFrameGrabberContinuous");
+                var handle = _cameraFrameGrabber.StartFrameGrabber(cameraId, "StartCameraFrameGrabber");
 
                 if (handle != null && handle.Length > 0)
                 {
@@ -180,10 +180,10 @@ namespace ChepInlineApp.ViewModels
         }
         public CameraViewModel? GetCameraViewModel(string cameraId) => cameraId switch
         {
-            "Station1_Cam1" => Station1_Cam1,
-            "Station1_Cam2" => Station1_Cam1, // Map to single camera
-            "Station1_Cam3" => Station1_Cam1, // Map to single camera
-            "Station1_Cam4" => Station1_Cam1, // Map to single camera
+            "InfeedCam" => InfeedCam,
+            "Station1_Cam2" => InfeedCam, // Map to single camera
+            "Station1_Cam3" => InfeedCam, // Map to single camera
+            "Station1_Cam4" => InfeedCam, // Map to single camera
             _ => null
         };
 

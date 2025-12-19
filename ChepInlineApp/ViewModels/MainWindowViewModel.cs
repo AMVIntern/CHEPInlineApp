@@ -1,5 +1,6 @@
 ﻿using ChepInlineApp.AppCycleManager;
 using ChepInlineApp.Base;
+using ChepInlineApp.Comms;
 using ChepInlineApp.DataServices;
 using ChepInlineApp.Models;
 using ChepInlineApp.Navigation.Stores;
@@ -29,13 +30,14 @@ namespace ChepInlineApp.ViewModels
         private readonly ChepInlineApp.MetadataExporter.Services.ImageCaptureCsvWriter _csvWriter;
         private readonly TriggerSessionManager _triggerSessionManager;
         private readonly PlcEventStore _plcEventStore;
+        private readonly PlcCommsManager _plcCommsManager;
         private readonly NavigationBarViewModel _navigationBarViewModel;
 
         public NavigationBarViewModel NavigationBarViewModel => _navigationBarViewModel;
 
         public MainWindowViewModel(NavigationStore navigationStore, HomeViewModel homeViewModel,
-            SettingsViewModel settingsViewModel,ModalStore modalStore, MultiCameraImageStore imageStore,ImageLogger imageLogger, ChepInlineApp.MetadataExporter.Services.ImageCaptureCsvWriter csvWriter, TriggerSessionManager triggerSessionManager, PlcEventStore plcEventStore, NavigationBarViewModel navigationBarViewModel) 
-        { 
+            SettingsViewModel settingsViewModel, ModalStore modalStore, MultiCameraImageStore imageStore, ImageLogger imageLogger, ChepInlineApp.MetadataExporter.Services.ImageCaptureCsvWriter csvWriter, TriggerSessionManager triggerSessionManager, PlcEventStore plcEventStore, PlcCommsManager plcCommsManager, NavigationBarViewModel navigationBarViewModel)
+        {
             _navigationStore = navigationStore;
             _homeViewModel = homeViewModel;
             _modalStore = modalStore;
@@ -43,6 +45,7 @@ namespace ChepInlineApp.ViewModels
             _csvWriter = csvWriter;
             _triggerSessionManager = triggerSessionManager;
             _plcEventStore = plcEventStore;
+            _plcCommsManager = plcCommsManager;
             _imageStore = imageStore;
             _navigationBarViewModel = navigationBarViewModel;
             _navigationStore.CurrentViewModelChanged += NavigationStore_CurrentViewModelChanged;
@@ -52,9 +55,9 @@ namespace ChepInlineApp.ViewModels
             _navigationStore.RetainViewModel(_homeViewModel);
             var cameraViewModels = new Dictionary<string, CameraViewModel>
             {
-                { "Station1_Cam1", homeViewModel.Station1_Cam1 },
+                { "InfeedCam", homeViewModel.InfeedCam },
             };
-            var bootstrapper = new InspectionBoostrapper(imageStore, cameraViewModels, imageLogger, csvWriter, triggerSessionManager, _plcEventStore, settingsViewModel, homeViewModel);
+            var bootstrapper = new InspectionBoostrapper(imageStore, cameraViewModels, imageLogger, csvWriter, triggerSessionManager, _plcEventStore, _plcCommsManager, settingsViewModel, homeViewModel);
         }
         private void NavigationStore_CurrentViewModelChanged()
         {

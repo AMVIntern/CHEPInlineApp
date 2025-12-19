@@ -25,7 +25,7 @@
                HorizontalAlignment="Center"
                VerticalAlignment="Center"
                Style="{StaticResource TextTitle}"
-               Text="CHEP Inline Application"
+               Text="CHEP Infeed Application"
                TextAlignment="Center"
               
                Foreground="{DynamicResource PrimaryForeground}" />

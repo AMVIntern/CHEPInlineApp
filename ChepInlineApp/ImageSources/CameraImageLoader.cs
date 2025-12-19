@@ -20,6 +20,7 @@ namespace ChepInlineApp.ImageSources
         private readonly CameraFrameGrabber _cameraFrameGrabber;
         private readonly ImageAcquisitionModel _imageAcquisitionModel;
         private readonly MultiCameraImageStore _imageStore;
+        private readonly ChepInlineApp.Comms.PlcCommsManager? _plcCommsManager;
         private readonly string _cameraId;
         private readonly ImageLogger _imageLogger;
         private readonly Action<CameraStatus>? _setStatus;
@@ -34,7 +35,8 @@ namespace ChepInlineApp.ImageSources
             MultiCameraImageStore imageStore,
             string cameraId,
             ImageLogger imageLogger,
-            Action<CameraStatus>? setStatus = null)
+            Action<CameraStatus>? setStatus = null,
+            ChepInlineApp.Comms.PlcCommsManager? plcCommsManager = null)
         {
             _cameraFrameGrabber = cameraFrameGrabber;
             _imageAcquisitionModel = imageAcquisitionModel;
@@ -42,6 +44,7 @@ namespace ChepInlineApp.ImageSources
             _cameraId = cameraId;
             _imageLogger = imageLogger;
             _setStatus = setStatus;
+            _plcCommsManager = plcCommsManager;
         }
 
         public Task GrabNextFrameAsync()
@@ -49,7 +52,13 @@ namespace ChepInlineApp.ImageSources
             try
             {
                 var image = GrabImage(_imageAcquisitionModel.AcqHandles[_cameraId]);
-                _imageStore.UpdateImage(_cameraId, image);
+
+                // Read Pallet ID from PLC on demand at the moment of image capture
+                int palletId = _plcCommsManager?.ReadPalletIdOnDemand() ?? 0;
+
+                _imageStore.UpdateImage(_cameraId, image, palletId);
+                Debug.WriteLine($"[CAPTURE] Image captured for {_cameraId} with Pallet ID: {palletId}");
+                AppLogger.Info($"[CAPTURE] Image captured for {_cameraId} with Pallet ID: {palletId}");
             }
             catch (Exception ex)
             {
@@ -76,9 +85,9 @@ namespace ChepInlineApp.ImageSources
                 }
                 catch (Exception ex)
                 {
-                    if (ex is HDevEngineException hdevEx)
+                    if (ex is HalconException hdevEx)
                     {
-                        int errorCode = hdevEx.HalconError;
+                        int errorCode = hdevEx.GetErrorCode();
 
                         if (errorCode == 5322)
                         {
@@ -142,145 +151,6 @@ namespace ChepInlineApp.ImageSources
                 _lastStatus = newStatus;
             }
         }
-
-        public void StartContinuousGrabbing()
-        {
-            StopContinuousGrabbing(); // Stop any existing grabbing
-
-            var acqHandle = _imageAcquisitionModel.AcqHandles[_cameraId];
-            if (acqHandle == null || acqHandle.Length == 0)
-            {
-                AppLogger.Error($"Cannot start continuous grabbing for {_cameraId}: AcqHandle is invalid");
-                return;
-            }
-
-            try
-            {
-                // Start the continuous grabbing loop
-                _continuousGrabbingCts = new CancellationTokenSource();
-                Task.Run(async () =>
-                {
-                    AppLogger.Info($"[ContinuousGrab] Starting continuous grabbing for {_cameraId}");
-                    while (!_continuousGrabbingCts.Token.IsCancellationRequested)
-                    {
-                        try
-                        {
-                            var image = GrabImageContinuous(acqHandle);
-                            if (image != null && image.IsInitialized())
-                            {
-                                _imageStore.UpdateImage(_cameraId, image);
-                            }
-                            
-                            // Delay after grabbing
-                            await Task.Delay(GrabDelayMs, _continuousGrabbingCts.Token);
-                        }
-                        catch (OperationCanceledException)
-                        {
-                            // Expected when stopping
-                            break;
-                        }
-                        catch (Exception ex)
-                        {
-                            AppLogger.Error($"[ContinuousGrab] Error grabbing frame for {_cameraId}: {ex.Message}", ex);
-                            // Continue trying even if there's an error
-                            await Task.Delay(GrabDelayMs, _continuousGrabbingCts.Token);
-                        }
-                    }
-                    AppLogger.Info($"[ContinuousGrab] Stopped continuous grabbing for {_cameraId}");
-                }, _continuousGrabbingCts.Token);
-            }
-            catch (Exception ex)
-            {
-                AppLogger.Error($"Failed to start continuous grabbing for {_cameraId}", ex);
-            }
-        }
-
-        public void StopContinuousGrabbing()
-        {
-            if (_continuousGrabbingCts != null)
-            {
-                _continuousGrabbingCts.Cancel();
-                _continuousGrabbingCts.Dispose();
-                _continuousGrabbingCts = null;
-                AppLogger.Info($"[ContinuousGrab] Stopping continuous grabbing for {_cameraId}");
-            }
-        }
-
-        private HImage GrabImageContinuous(HTuple acqHandle)
-        {
-            bool timeout = true;
-            HImage hImage = new HImage();
-            int retry = 1;
-            while (timeout || retry==3)
-            {
-                try
-                {
-                    // After grab_image_start, use grab_image to get images continuously
-                    HOperatorSet.GrabImage(out HObject img, acqHandle);
-                    hImage = new HImage(img);
-                    timeout = false;
-                    return hImage;
-                }
-                catch (HalconException hex)
-                {
-                    //if (ex is HDevEngineException hdevEx)
-                    //{
-                    int errorCode = hex.GetErrorCode();
-
-                    retry++;
-                    if (errorCode == 5322)
-                        {
-                            AppLogger.Info($"[CAPTURE:TIMEOUT] cam={_cameraId} waiting for trigger");
-                            Debug.WriteLine($"[HALCON] Timeout waiting for trigger ({_cameraId})");
-                            timeout = true;
-                        }
-                        else
-                        {
-                            AppLogger.Error($"[CAPTURE:ERR] cam={_cameraId} halconError={errorCode} closing and restarting frame grabber");
-                            Debug.WriteLine($"[HALCON] Error {errorCode} on {_cameraId}: closing and restarting frame grabber");
-                            UpdateStatus(CameraStatus.Disconnected);
-                            _cameraFrameGrabber.CloseFrameGrabber(acqHandle);
-                            try
-                            {
-                                AppLogger.Info($"[CAPTURE:RESTARTED] cam={_cameraId}");
-                                _imageAcquisitionModel.AcqHandles[_cameraId] = StartLiveCamera(_cameraId);
-                                UpdateStatus(CameraStatus.Connected);
-                            }
-                            catch (Exception innerEx)
-                            {
-                                AppLogger.Error($"Failed to restart frame grabber for {_cameraId}", innerEx);
-                            }
-                            throw; // or swallow depending on your policy
-                        }
-                    //}
-                    
-                }
-            }
-
-                AppLogger.Error($"[CAPTURE:EXC] cam={_cameraId} ");
-                Debug.WriteLine($"[HALCON] Error  on {_cameraId}: closing and restarting frame grabber");
-                UpdateStatus(CameraStatus.Disconnected);
-                _cameraFrameGrabber.CloseFrameGrabber(acqHandle);
-                try
-                {
-                    _imageAcquisitionModel.AcqHandles[_cameraId] = StartLiveCamera(_cameraId);
-                    UpdateStatus(CameraStatus.Connected);
-                    AppLogger.Info($"[CAPTURE:RESTARTED] cam={_cameraId}");
-                }
-                catch (Exception innerEx)
-                {
-                    AppLogger.Error($"Failed to restart frame grabber for {_cameraId}", innerEx);
-                }
-            
-            return hImage;
-
-        }
-
-        public void Dispose()
-        {
-            StopContinuousGrabbing();
-        }
-
         public HTuple StartLiveCamera(string cameraId)
         {
             var call = new HDevProcedureCall(new HDevProcedure("StartCameraFrameGrabber"));
@@ -288,5 +158,13 @@ namespace ChepInlineApp.ImageSources
             call.Execute();
             return call.GetOutputCtrlParamTuple("AcqHandle");
         }
+
+
+
+        public void Dispose()
+        {
+        }
+
+
     }
 }

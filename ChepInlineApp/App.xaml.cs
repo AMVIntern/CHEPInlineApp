@@ -44,7 +44,8 @@ namespace ChepInlineApp
                         var cameraFrameGrabber = provider.GetRequiredService<CameraFrameGrabber>();
                         var triggerSessionManager = provider.GetRequiredService<TriggerSessionManager>();
                         var modalStore = provider.GetRequiredService<ModalStore>();
-                        var plcEventStore = provider.GetRequiredService<PlcEventStore>();   
+                        var plcEventStore = provider.GetRequiredService<PlcEventStore>();
+                        var plcCommsManager = provider.GetRequiredService<PlcCommsManager>();
                         return new HomeViewModel(
                             navigationStore,
                             imageStore,
@@ -54,7 +55,8 @@ namespace ChepInlineApp
                             triggerSessionManager,
                             () => provider.GetRequiredService<SettingsViewModel>(),
                             modalStore,
-                            plcEventStore);
+                            plcEventStore,
+                            plcCommsManager);
                     })
                     .AddSingleton<MultiCameraImageStore>()
                     .AddSingleton<AppConfigModel>()
@@ -98,7 +100,7 @@ namespace ChepInlineApp
             var homeViewModel = _host.Services.GetRequiredService<HomeViewModel>();
             navigationStore.CurrentViewModel = homeViewModel;
 
-            var mainWindow =  _host.Services.GetRequiredService<MainWindow>();
+            var mainWindow = _host.Services.GetRequiredService<MainWindow>();
             mainWindow.Show();
             var plcCommsManager = _host.Services.GetRequiredService<PlcCommsManager>();
             await plcCommsManager.InitializeAsync();

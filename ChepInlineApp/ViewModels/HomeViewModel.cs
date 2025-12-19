@@ -38,6 +38,7 @@ namespace ChepInlineApp.ViewModels
         private readonly TriggerSessionManager _triggerSessionManager;
         private readonly CancellationTokenSource _cts = new();
         private readonly PlcEventStore _plcEventStore;
+        private readonly ChepInlineApp.Comms.PlcCommsManager? _plcCommsManager;
         [ObservableProperty]
         private string[]? barcodeResults;
 
@@ -46,10 +47,11 @@ namespace ChepInlineApp.ViewModels
         private readonly System.Windows.Threading.DispatcherTimer _syncTimer;
         private const int frameIntervalSeconds = 2;
         private int _cycleFrameIndex;
-
-        public HomeViewModel(NavigationStore navigationStore, MultiCameraImageStore imageStore, ImageLogger imageLogger, 
+        private readonly List<Task> _cameraTasks = new();
+        public HomeViewModel(NavigationStore navigationStore, MultiCameraImageStore imageStore, ImageLogger imageLogger,
             ImageAcquisitionModel imageAcquisitionModel, CameraFrameGrabber cameraFrameGrabber, TriggerSessionManager triggerSessionManager,
-            Func<SettingsViewModel> getSettingsViewModel, ModalStore modalStore, PlcEventStore plcEventStore)
+            Func<SettingsViewModel> getSettingsViewModel, ModalStore modalStore, PlcEventStore plcEventStore,
+            ChepInlineApp.Comms.PlcCommsManager? plcCommsManager = null)
         {
             _navigationStore = navigationStore;
             _imageStore = imageStore;
@@ -60,6 +62,7 @@ namespace ChepInlineApp.ViewModels
             _getSettingsViewModel = getSettingsViewModel;
             _modalStore = modalStore;
             _plcEventStore = plcEventStore;
+            _plcCommsManager = plcCommsManager;
 
             imageStore.RegisterCamera("InfeedCam", "Infeed Camera");
 
@@ -145,14 +148,14 @@ namespace ChepInlineApp.ViewModels
                         _imageStore,
                         cameraId,
                         _imageLogger,
-                        status => viewModel.Status = status
+                        status => viewModel.Status = status,
+                        _plcCommsManager
                     );
                     _imageSources.Add(loader);
                     _activeCameraIds.Add(cameraId);
-                    
-                    // Start continuous grabbing with grab_image_start
-                    loader.StartContinuousGrabbing();
-                    
+
+                    StartGrabbingForLoader(loader);
+
                     return true;
                 }
             }
@@ -177,6 +180,26 @@ namespace ChepInlineApp.ViewModels
                     await Task.Delay(2000);
                 }
             });
+        }
+        private void StartGrabbingForLoader(IImageSource loader)
+        {
+            var task = Task.Run(async () =>
+            {
+                while (!_cts.IsCancellationRequested)
+                {
+                    try
+                    {
+                        await loader.GrabNextFrameAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        AppLogger.Error("GrabNextFrameAsync failed", ex);
+                    }
+                    await Task.Delay(1000);
+                }
+            }, _cts.Token);
+
+            _cameraTasks.Add(task);
         }
         public CameraViewModel? GetCameraViewModel(string cameraId) => cameraId switch
         {
@@ -213,15 +236,6 @@ namespace ChepInlineApp.ViewModels
 
         public void Dispose()
         {
-            // Stop all continuous grabbing
-            foreach (var source in _imageSources)
-            {
-                if (source is CameraImageLoader loader)
-                {
-                    loader.StopContinuousGrabbing();
-                }
-            }
-
             // Cancel all operations
             _cts.Cancel();
             _cts.Dispose();

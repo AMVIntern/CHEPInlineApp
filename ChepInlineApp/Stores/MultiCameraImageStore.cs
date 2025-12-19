@@ -16,6 +16,7 @@ namespace ChepInlineApp.Stores
             public string Title { get; }
             public HImage? Image { get; set; }
             public long TimeStampUnixMs { get; set; }
+            public int PalletId { get; set; } = 0;
             public event Action? ImageUpdated;
             public int Height { get; set; }
             public int Width { get; set; }
@@ -37,7 +38,7 @@ namespace ChepInlineApp.Stores
             public void Unsubscribe(Action callback)
             {
                 ImageUpdated -= callback;
-            }            
+            }
         }
 
         private readonly Dictionary<string, CameraImageEntry> _cameraEntries = new();
@@ -50,13 +51,14 @@ namespace ChepInlineApp.Stores
             _cameraEntries[cameraId] = new CameraImageEntry(title);
         }
 
-        public void UpdateImage(string cameraId, HImage image)
+        public void UpdateImage(string cameraId, HImage image, int palletId = 0)
         {
             if (!_cameraEntries.TryGetValue(cameraId, out var entry))
                 throw new KeyNotFoundException($"Camera with ID {cameraId} is not registered.");
 
             entry.Image = image;
             entry.TimeStampUnixMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            entry.PalletId = palletId;
             entry.RaiseImageUpdated();
         }
 
@@ -170,6 +172,17 @@ namespace ChepInlineApp.Stores
                 throw new KeyNotFoundException($"Camera with ID '{cameraId}' is not registered.");
 
             return entry.CenterY;
+        }
+
+        /// <summary>
+        /// Gets the Pallet ID associated with the current image for a camera
+        /// </summary>
+        public int GetPalletId(string cameraId)
+        {
+            if (!_cameraEntries.TryGetValue(cameraId, out var entry))
+                throw new KeyNotFoundException($"Camera with ID '{cameraId}' is not registered.");
+
+            return entry.PalletId;
         }
     }
 }

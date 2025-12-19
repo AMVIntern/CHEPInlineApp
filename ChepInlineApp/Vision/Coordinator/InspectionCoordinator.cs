@@ -255,9 +255,9 @@ namespace ChepInlineApp.Vision.Coordinator
                     // Write to CSV if image was logged
                     if (!string.IsNullOrEmpty(imagePath))
                     {
-                        // Read Pallet ID from PLC on demand when new image arrives
-                        int palletId = _plcCommsManager.ReadPalletIdOnDemand();
-                        string tagId = palletId.ToString(); // Use pallet ID or fallback
+                        // Get Pallet ID that was stored with the image at capture time
+                        int palletId = _imageStore.GetPalletId(cameraId);
+                        string tagId = palletId.ToString(); // Use pallet ID stored with image
                         await _csvWriter.WriteImageCaptureAsync(imagePath, timestamp, tagId);
                     }
                 }

@@ -1,17 +1,17 @@
 ﻿using ChepInlineApp.AppCycleManager;
 using ChepInlineApp.Comms;
 using ChepInlineApp.DataServices;
+using ChepInlineApp.Helpers;
 using ChepInlineApp.MetadataExporter.Services;
+using ChepInlineApp.PLC.Enums;
+using ChepInlineApp.PLC.Interfaces;
 using ChepInlineApp.Stores;
 using ChepInlineApp.ViewModels;
 using ChepInlineApp.Vision.HalconProcedures;
 using ChepInlineApp.Vision.Handlers.Interfaces;
 using ChepInlineApp.Vision.Runners;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
+using ChepInlineApp.Vision.Handlers.Steps;
 
 namespace ChepInlineApp.Vision.Coordinator
 {
@@ -29,12 +29,34 @@ namespace ChepInlineApp.Vision.Coordinator
             _triggerSessionManager = triggerSessionManager;
             _settingsViewModel = settingsViewModel;
             _plcEventStore = plcEventStore;
+            var resources = InitializeInspectionResources();
 
             var runners = new Dictionary<string, IInspectionRunner>()
             {
+                {
+                    "InfeedCam", new SequentialInspectionRunner(new IInspectionStep[]
+                    {
+                        new ClassifierInspectionStep("InfeedCam Inspection Step", resources.ClassifierModelPath),
+                    })
+                },
             };
 
             Coordinator = new InspectionCoordinator(runners, imageStore, cameraViewModels, imageLogger, csvWriter, _triggerSessionManager, _plcEventStore, plcCommsManager, homeViewModel);
         }
+        private InspectionResources InitializeInspectionResources()
+        {
+            var classifierModelPath = Path.Combine(PathConfig.ModelsFolder, "best_densenet121.onnx");
+            if (!File.Exists(classifierModelPath))
+                AppLogger.Error($"Model file not found at: {classifierModelPath}");
+
+            return new InspectionResources
+            {
+                ClassifierModelPath = classifierModelPath,
+            };
+        }
     }
+}
+public class InspectionResources
+{
+    public string ClassifierModelPath { get; init; } = string.Empty;
 }

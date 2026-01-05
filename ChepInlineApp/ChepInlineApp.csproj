@@ -35,9 +35,7 @@
 		<SplashScreen Include="Resources\Logos\Splash.png" />
 	</ItemGroup>
 	<ItemGroup>
-	  <Folder Include="Vision\Handlers\Steps\" />
-	</ItemGroup>
-	<ItemGroup>
+	  <ProjectReference Include="..\ChepInlineApp.Classifier\ChepInlineApp.Classifier.csproj" />
 	  <ProjectReference Include="..\ChepInlineApp.PLC\ChepInlineApp.PLC.csproj" />
 	  <ProjectReference Include="..\ChepInlineApp.MetadataExporter\ChepInlineApp.MetadataExporter.csproj" />
 	</ItemGroup>

@@ -29,9 +29,6 @@ namespace ChepInlineApp.ViewModels
         private readonly Func<SettingsViewModel> _getSettingsViewModel;
         private readonly ModalStore _modalStore;
         public CameraViewModel InfeedCam { get; }
-        public CameraViewModel Station1_Cam2 { get; }
-        public CameraViewModel Station1_Cam3 { get; }
-        public CameraViewModel Station1_Cam4 { get; }
 
         private readonly ImageAcquisitionModel _imageAcquisitionModel;
         private readonly CameraFrameGrabber _cameraFrameGrabber;
@@ -67,9 +64,6 @@ namespace ChepInlineApp.ViewModels
             imageStore.RegisterCamera("InfeedCam", "Infeed Camera");
 
             InfeedCam = new CameraViewModel("InfeedCam", _imageStore, _navigationStore, this, _triggerSessionManager);
-            Station1_Cam2 = new CameraViewModel("InfeedCam", _imageStore, _navigationStore, this, _triggerSessionManager); // Keep for compatibility
-            Station1_Cam3 = new CameraViewModel("InfeedCam", _imageStore, _navigationStore, this, _triggerSessionManager); // Keep for compatibility
-            Station1_Cam4 = new CameraViewModel("InfeedCam", _imageStore, _navigationStore, this, _triggerSessionManager); // Keep for compatibility
 
             if (AppEnvironment.IsOfflineMode)
             {
@@ -204,9 +198,6 @@ namespace ChepInlineApp.ViewModels
         public CameraViewModel? GetCameraViewModel(string cameraId) => cameraId switch
         {
             "InfeedCam" => InfeedCam,
-            "Station1_Cam2" => InfeedCam, // Map to single camera
-            "Station1_Cam3" => InfeedCam, // Map to single camera
-            "Station1_Cam4" => InfeedCam, // Map to single camera
             _ => null
         };
 

@@ -39,11 +39,12 @@ namespace ChepInlineApp.Vision.Handlers.Steps
                 // Run classification on the full image
                 var prediction = model.Infer(mat);
 
-                // ClassID 0 = Pass, ClassID 1 = Fail (model output mapping)
+                // ClassID 0 = Good (Pass), ClassID 1, 2, 3 = Bad (Fail)
                 var passed = prediction.ClassID == 0;
                 var confidence = prediction.Probability;
+                var resultLabel = passed ? "Good" : "Bad";
 
-                AppLogger.Info($"[{Name}] DenseT classification result : {(passed ? "Pass" : "Fail")}, Confidence: {confidence:F4}, ClassID: {prediction.ClassID}");
+                AppLogger.Info($"[{Name}] DenseT classification result: {resultLabel}, Confidence: {confidence:F4}, ClassID: {prediction.ClassID}");
 
                 // Store classification result using step name (for compatibility with SendResultsStep)
                 var result = new InspectionResult

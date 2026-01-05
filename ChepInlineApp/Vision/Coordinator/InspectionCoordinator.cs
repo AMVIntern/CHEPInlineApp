@@ -202,8 +202,29 @@ namespace ChepInlineApp.Vision.Coordinator
             // Extract inspection result from context
             bool? passed = null;
             string message = "Processing...";
+            double confidence = 0.0;
+            bool hasInspectionResult = false;
 
-            if (context.InspectionResults.TryGetValue("Passed", out var passedObj) && passedObj is bool passedValue)
+            // First, check for InspectionResult objects (from ClassifierInspectionStep and other steps)
+            InspectionResult? inspectionResult = null;
+            foreach (var kvp in context.InspectionResults)
+            {
+                if (kvp.Value is InspectionResult result)
+                {
+                    inspectionResult = result;
+                    hasInspectionResult = true;
+                    break; // Use the first InspectionResult found
+                }
+            }
+
+            if (inspectionResult != null)
+            {
+                passed = inspectionResult.Passed;
+                confidence = inspectionResult.Confidence;
+                message = inspectionResult.Passed ? "Inspection Passed" : "Inspection Failed";
+                AppLogger.Info($"[{cameraId}] Classifier result: {(inspectionResult.Passed ? "Good" : "Bad")}, Confidence: {confidence:F4}");
+            }
+            else if (context.InspectionResults.TryGetValue("Passed", out var passedObj) && passedObj is bool passedValue)
             {
                 passed = passedValue;
                 message = passedValue ? "Inspection Passed" : "Inspection Failed";
@@ -246,7 +267,11 @@ namespace ChepInlineApp.Vision.Coordinator
                 {
                     long timestamp = _imageStore.GetTimestamp(cameraId);
                     string result = passed.Value ? "Good" : "Bad";
-                    double confidence = passed.Value ? 1.0 : 0.0; // You can extract actual confidence from context if available
+                    // Use confidence from InspectionResult if available, otherwise default based on passed status
+                    if (!hasInspectionResult && passed.HasValue)
+                    {
+                        confidence = passed.Value ? 1.0 : 0.0;
+                    }
 
                     // Clone the image for logging to avoid disposal issues
                     HImage imageToLog = image.Clone();

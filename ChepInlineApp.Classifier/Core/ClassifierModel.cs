@@ -32,7 +32,21 @@ namespace ChepInlineApp.Classifier.Core
             _inputWidth = _inputDims[3];
             NumClasses = _outputDims[1];
 
-            _postProcess = new ClassifierPostProcessor(new[] { "Pass", "Fail" });
+            // Create class labels: Class 0 = Good, Classes 1, 2, 3... = Bad
+            string[] classLabels = new string[NumClasses];
+            for (int i = 0; i < NumClasses; i++)
+            {
+                if (i == 0)
+                {
+                    classLabels[i] = "Good";
+                }
+                else
+                {
+                    classLabels[i] = $"Bad_{i}";
+                }
+            }
+
+            _postProcess = new ClassifierPostProcessor(classLabels);
         }
 
         public ClassificationObject Infer(Mat imageBGR)

@@ -20,6 +20,14 @@ namespace ChepInlineApp.Classifier.Core
             int classId = Array.IndexOf(probs, probs.Max());
             float confidence = probs[classId];
 
+            // Bounds check to prevent IndexOutOfRangeException
+            if (classId < 0 || classId >= _classLabels.Length)
+            {
+                throw new IndexOutOfRangeException(
+                    $"ClassID {classId} is out of range. Expected 0-{_classLabels.Length - 1}, but got {classId}. " +
+                    $"Number of logits: {logits.Length}, Number of class labels: {_classLabels.Length}");
+            }
+
             return new ClassificationObject
             {
                 ClassID = classId,

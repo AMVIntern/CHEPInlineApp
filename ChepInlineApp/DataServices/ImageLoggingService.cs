@@ -12,7 +12,7 @@ namespace ChepInlineApp.DataServices
     public class ImageLoggingService
     {
         private readonly string _baseDirectory = @"C:\AMV\ImageLogs";
-        public async Task<string?> LogAsync(HImage image, long timestamp, string cameraName, string result = "Good", double confidence = 0.0, string format = "tiff")
+        public async Task<string?> LogAsync(HImage image, long timestamp, string cameraName, string result = "Pass", double confidence = 0.0, string format = "tiff")
         {
             try
             {

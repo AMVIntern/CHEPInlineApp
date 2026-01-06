@@ -152,7 +152,7 @@ namespace ChepInlineApp.Vision.Coordinator
             try
             {
                 // TODO: Add your actual inspection logic here
-                // For now, this is a placeholder that randomly determines good/bad
+                // For now, this is a placeholder that randomly determines Pass/Fail
                 // Replace this with your actual inspection algorithm
                 bool passed = PerformInspection(image);
                 context.InspectionResults["Passed"] = passed;
@@ -183,7 +183,7 @@ namespace ChepInlineApp.Vision.Coordinator
                     return false;
 
                 // Example: Simple check - you can add more sophisticated logic
-                // For demonstration, randomly return good/bad
+                // For demonstration, randomly return Pass/Fail
                 // In production, implement your actual inspection criteria
                 var random = new Random();
                 return random.Next(0, 100) > 30; // 70% pass rate for demo
@@ -222,7 +222,7 @@ namespace ChepInlineApp.Vision.Coordinator
                 passed = inspectionResult.Passed;
                 confidence = inspectionResult.Confidence;
                 message = inspectionResult.Passed ? "Inspection Passed" : "Inspection Failed";
-                AppLogger.Info($"[{cameraId}] Classifier result: {(inspectionResult.Passed ? "Good" : "Bad")}, Confidence: {confidence:F4}");
+                AppLogger.Info($"[{cameraId}] Classifier result: {(inspectionResult.Passed ? "Pass" : "Fail")}, Confidence: {confidence:F4}");
             }
             else if (context.InspectionResults.TryGetValue("Passed", out var passedObj) && passedObj is bool passedValue)
             {
@@ -266,7 +266,7 @@ namespace ChepInlineApp.Vision.Coordinator
                 try
                 {
                     long timestamp = _imageStore.GetTimestamp(cameraId);
-                    string result = passed.Value ? "Good" : "Bad";
+                    string result = passed.Value ? "Pass" : "Fail";
                     // Use confidence from InspectionResult if available, otherwise default based on passed status
                     if (!hasInspectionResult && passed.HasValue)
                     {

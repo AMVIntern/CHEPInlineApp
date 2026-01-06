@@ -32,17 +32,17 @@ namespace ChepInlineApp.Classifier.Core
             _inputWidth = _inputDims[3];
             NumClasses = _outputDims[1];
 
-            // Create class labels: Class 0 = Good, Classes 1, 2, 3... = Bad
+            // Create class labels: Class 0 = Pass, Classes 1, 2, 3... = Fail
             string[] classLabels = new string[NumClasses];
             for (int i = 0; i < NumClasses; i++)
             {
                 if (i == 0)
                 {
-                    classLabels[i] = "Good";
+                    classLabels[i] = "Pass";
                 }
                 else
                 {
-                    classLabels[i] = $"Bad_{i}";
+                    classLabels[i] = $"Fail_{i}";
                 }
             }
 

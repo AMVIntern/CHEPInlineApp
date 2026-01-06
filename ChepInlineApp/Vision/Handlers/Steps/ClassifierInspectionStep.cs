@@ -39,10 +39,10 @@ namespace ChepInlineApp.Vision.Handlers.Steps
                 // Run classification on the full image
                 var prediction = model.Infer(mat);
 
-                // ClassID 0 = Good (Pass), ClassID 1, 2, 3 = Bad (Fail)
+                // ClassID 0 = Pass (Pass), ClassID 1, 2, 3 = Fail (Fail)
                 var passed = prediction.ClassID == 0;
                 var confidence = prediction.Probability;
-                var resultLabel = passed ? "Good" : "Bad";
+                var resultLabel = passed ? "Pass" : "Fail";
 
                 AppLogger.Info($"[{Name}] DenseT classification result: {resultLabel}, Confidence: {confidence:F4}, ClassID: {prediction.ClassID}");
 

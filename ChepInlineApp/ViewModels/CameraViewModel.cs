@@ -38,7 +38,7 @@ namespace ChepInlineApp.ViewModels
         private bool showStatusIndicator = true;
 
         [ObservableProperty]
-        private bool? inspectionPassed; // null = no result yet, true = good, false = bad
+        private bool? inspectionPassed; // null = no result yet, true = Pass, false = Fail
 
         [ObservableProperty]
         private bool isInspecting = false;

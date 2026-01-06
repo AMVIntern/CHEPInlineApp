@@ -21,7 +21,7 @@
                     Orientation="Horizontal" 
                     HorizontalAlignment="Center"
                     Margin="0,0,0,15">
-            <!-- Good Checkbox -->
+            <!-- Pass Checkbox -->
             <Border Background="#1a1a1a"
                     BorderBrush="#4CAF50"
                     BorderThickness="3"
@@ -68,9 +68,9 @@
                         </Viewbox>
                     </Border>
                     
-                    <!-- Good Label -->
+                    <!-- Pass Label -->
                     <TextBlock Grid.Column="1"
-                               Text="Good"
+                               Text="Pass"
                                FontSize="24"
                                FontWeight="Bold"
                                Foreground="White"
@@ -78,7 +78,7 @@
                 </Grid>
             </Border>
             
-            <!-- Bad Checkbox -->
+            <!-- Fail Checkbox -->
             <Border Background="#1a1a1a"
                     BorderBrush="#F44336"
                     BorderThickness="3"
@@ -128,9 +128,9 @@
                         </Viewbox>
                     </Border>
                     
-                    <!-- Bad Label -->
+                    <!-- Fail Label -->
                     <TextBlock Grid.Column="1"
-                               Text="Bad"
+                               Text="Fail"
                                FontSize="24"
                                FontWeight="Bold"
                                Foreground="White"

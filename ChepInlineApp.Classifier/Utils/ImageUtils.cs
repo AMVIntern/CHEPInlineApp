@@ -109,7 +109,7 @@ namespace ChepInlineApp.Classifier.Utils
             Mat bgrMat = new Mat();
             Cv2.Merge(new[] { blueMat, greenMat, redMat }, bgrMat);
 
-            // Release the single channel Mats (optional but good practice)
+            // Release the single channel Mats (optional but Pass practice)
             redMat.Dispose();
             greenMat.Dispose();
             blueMat.Dispose();

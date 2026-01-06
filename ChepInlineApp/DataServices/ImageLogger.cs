@@ -14,7 +14,7 @@ namespace ChepInlineApp.DataServices
             _imageLoggingService = imageLoggingService;
         }
 
-        public async Task<string?> LogIfEnabledAsync(HImage image, long timestamp, string cameraName, string result = "Good", double confidence = 0.0, string format = "tiff")
+        public async Task<string?> LogIfEnabledAsync(HImage image, long timestamp, string cameraName, string result = "Pass", double confidence = 0.0, string format = "tiff")
         {
             if (!_appConfigModel.ShouldLog(cameraName, result))
                 return null;

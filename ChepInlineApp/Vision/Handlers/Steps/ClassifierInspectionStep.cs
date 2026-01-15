@@ -39,7 +39,7 @@ namespace ChepInlineApp.Vision.Handlers.Steps
                 // Run classification on the full image
                 var prediction = model.Infer(mat);
 
-                // ClassID 0 = Pass (good), ClassID 1 = Fail (bad)
+                // ClassID 0 = Pass (good), ClassID 1, 2, 3 = Fail (bad)
                 var passed = prediction.ClassID == 0;
                 var confidence = prediction.Probability;
                 var resultLabel = passed ? "Pass" : "Fail";

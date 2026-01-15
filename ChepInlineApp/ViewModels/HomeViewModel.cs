@@ -1,4 +1,4 @@
-﻿using ChepInlineApp.AppCycleManager;
+using ChepInlineApp.AppCycleManager;
 using ChepInlineApp.Base;
 using ChepInlineApp.DataServices;
 using ChepInlineApp.Enums;
@@ -42,9 +42,21 @@ namespace ChepInlineApp.ViewModels
         [ObservableProperty]
         private string barcodeDisplayText = "No barcode detected";
         private readonly System.Windows.Threading.DispatcherTimer _syncTimer;
-        private const int frameIntervalSeconds = 2;
+        private const int frameIntervalSeconds = 5;
         private int _cycleFrameIndex;
         private readonly List<Task> _cameraTasks = new();
+
+        [ObservableProperty]
+        private int passCount = 0;
+
+        [ObservableProperty]
+        private int failCount = 0;
+
+        [ObservableProperty]
+        private int totalPalletsInspected = 0;
+
+        private bool _wasInspecting = false;
+        private bool? _lastCountedResult = null;
         public HomeViewModel(NavigationStore navigationStore, MultiCameraImageStore imageStore, ImageLogger imageLogger,
             ImageAcquisitionModel imageAcquisitionModel, CameraFrameGrabber cameraFrameGrabber, TriggerSessionManager triggerSessionManager,
             Func<SettingsViewModel> getSettingsViewModel, ModalStore modalStore, PlcEventStore plcEventStore,
@@ -64,6 +76,48 @@ namespace ChepInlineApp.ViewModels
             imageStore.RegisterCamera("InfeedCam", "Infeed Camera");
 
             InfeedCam = new CameraViewModel("InfeedCam", _imageStore, _navigationStore, this, _triggerSessionManager);
+            
+            // Initialize tracking state
+            _wasInspecting = InfeedCam.IsInspecting;
+            
+            InfeedCam.PropertyChanged += (sender, e) =>
+            {
+                if (e.PropertyName == nameof(InfeedCam.IsInspecting))
+                {
+                    // When a new inspection starts (was not inspecting, now inspecting)
+                    // Reset the last counted result so we can count this new inspection
+                    if (!_wasInspecting && InfeedCam.IsInspecting)
+                    {
+                        _lastCountedResult = null;
+                    }
+                    // When inspection completes (was inspecting, now not inspecting)
+                    else if (_wasInspecting && !InfeedCam.IsInspecting && InfeedCam.InspectionPassed.HasValue)
+                    {
+                        // Count this inspection if we haven't counted it yet
+                        // We check if the result is different OR if we haven't counted any result yet
+                        if (_lastCountedResult == null || _lastCountedResult != InfeedCam.InspectionPassed.Value)
+                        {
+                            UpdateInspectionCounters();
+                            _lastCountedResult = InfeedCam.InspectionPassed.Value;
+                        }
+                    }
+                    _wasInspecting = InfeedCam.IsInspecting;
+                }
+                else if (e.PropertyName == nameof(InfeedCam.InspectionPassed))
+                {
+                    // When InspectionPassed is set and inspection is not in progress
+                    // This handles cases where InspectionPassed is set after IsInspecting becomes false
+                    if (!InfeedCam.IsInspecting && InfeedCam.InspectionPassed.HasValue)
+                    {
+                        // Count this inspection if we haven't counted it yet
+                        if (_lastCountedResult == null || _lastCountedResult != InfeedCam.InspectionPassed.Value)
+                        {
+                            UpdateInspectionCounters();
+                            _lastCountedResult = InfeedCam.InspectionPassed.Value;
+                        }
+                    }
+                }
+            };
 
             if (AppEnvironment.IsOfflineMode)
             {
@@ -222,6 +276,39 @@ namespace ChepInlineApp.ViewModels
             if (confirm == true)
             {
                 Application.Current.Shutdown();
+            }
+        }
+
+        private void UpdateInspectionCounters()
+        {
+            // Count every time an inspection completes (when IsInspecting goes from true to false)
+            // This ensures we count consecutive passes or fails, not just when the result changes
+            if (InfeedCam.InspectionPassed.HasValue)
+            {
+                TotalPalletsInspected++;
+                if (InfeedCam.InspectionPassed.Value)
+                {
+                    PassCount++;
+                }
+                else
+                {
+                    FailCount++;
+                }
+            }
+        }
+
+        [RelayCommand]
+        public async Task ResetCounters()
+        {
+            bool confirm = await _modalStore.ShowConfirmationAsync("Reset Counters", "Are you sure you want to reset all inspection counters?");
+            if (confirm == true)
+            {
+                PassCount = 0;
+                FailCount = 0;
+                TotalPalletsInspected = 0;
+                _wasInspecting = InfeedCam.IsInspecting;
+                _lastCountedResult = null;
+                InfeedCam.InspectionPassed = null;
             }
         }
 

@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using ChepInlineApp.Classifier.Models;
 using ChepInlineApp.Classifier.Utils;
 using Microsoft.ML.OnnxRuntime;
@@ -32,7 +32,7 @@ namespace ChepInlineApp.Classifier.Core
             _inputWidth = _inputDims[3];
             NumClasses = _outputDims[1];
 
-            // Create class labels: Class 0 = Pass, Classes 1, 2, 3... = Fail
+            // Create class labels: Class 0 = Pass (good), Class 1 = Fail (bad)
             string[] classLabels = new string[NumClasses];
             for (int i = 0; i < NumClasses; i++)
             {
@@ -42,7 +42,7 @@ namespace ChepInlineApp.Classifier.Core
                 }
                 else
                 {
-                    classLabels[i] = $"Fail_{i}";
+                    classLabels[i] = "Fail";
                 }
             }
 

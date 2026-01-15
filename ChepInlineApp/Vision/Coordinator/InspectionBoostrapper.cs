@@ -45,7 +45,7 @@ namespace ChepInlineApp.Vision.Coordinator
         }
         private InspectionResources InitializeInspectionResources()
         {
-            var classifierModelPath = Path.Combine(PathConfig.ModelsFolder, "best_densenet121.onnx");
+            var classifierModelPath = Path.Combine(PathConfig.ModelsFolder, "best_densenet121_15JAN26.onnx");
             if (!File.Exists(classifierModelPath))
                 AppLogger.Error($"Model file not found at: {classifierModelPath}");
 

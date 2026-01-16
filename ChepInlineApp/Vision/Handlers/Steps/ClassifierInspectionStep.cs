@@ -1,11 +1,12 @@
+using ChepInlineApp.Classifier;
+using ChepInlineApp.Classifier.Core;
+using ChepInlineApp.Classifier.Utils;
 using ChepInlineApp.Helpers;
 using ChepInlineApp.Vision.Handlers.Core;
 using ChepInlineApp.Vision.Handlers.Interfaces;
 using ChepInlineApp.Vision.Results;
 using HalconDotNet;
-using ChepInlineApp.Classifier;
-using ChepInlineApp.Classifier.Utils;
-using ChepInlineApp.Classifier.Core;
+using System.Diagnostics;
 
 namespace ChepInlineApp.Vision.Handlers.Steps
 {
@@ -42,8 +43,18 @@ namespace ChepInlineApp.Vision.Handlers.Steps
                 // ClassID 0 = Pass (good), ClassID 1 = Fail (bad)
                 var passed = prediction.ClassID == 0;
                 var confidence = prediction.Probability;
-                var resultLabel = passed ? "Pass" : "Fail";
+                var resultLabel = string.Empty;
 
+                Debug.WriteLine($"Confidence Score: {confidence} with classID: {prediction.ClassID}");
+
+                if (!passed)
+                {
+                    if (confidence < 0.80f)
+                    {
+                        resultLabel = "Pass";
+                        passed = true;
+                    }
+                }
                 AppLogger.Info($"[{Name}] DenseT classification result: {resultLabel}, Confidence: {confidence:F4}, ClassID: {prediction.ClassID}");
 
                 // Store classification result using step name (for compatibility with SendResultsStep)

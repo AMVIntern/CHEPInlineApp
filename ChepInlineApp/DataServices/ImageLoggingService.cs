@@ -25,15 +25,20 @@ namespace ChepInlineApp.DataServices
 
                 Directory.CreateDirectory(basePath);
 
-                // Format confidence as percentage with 2 decimal places (e.g., 95.50)
-                // Multiply by 100 to convert from decimal (0.95) to percentage (95.00)
                 string confidenceStr = (confidence * 100).ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
                 string fileName = $"{timestamp}_{cameraName}_{result}_{confidenceStr}.{GetExtension(format)}";
                 string fullPath = Path.Combine(basePath, fileName);
 
+                // PNG subfolder
+                string pngFolder = Path.Combine(basePath, "png");
+                Directory.CreateDirectory(pngFolder);
+                string pngFileName = $"{timestamp}_{cameraName}_{result}_{confidenceStr}.png";
+                string pngFullPath = Path.Combine(pngFolder, pngFileName);
+
                 await Task.Run(() =>
                 {
                     image.WriteImage(format, 0, fullPath);
+                    image.WriteImage("png", 0, pngFullPath);
                 });
 
                 return fullPath;

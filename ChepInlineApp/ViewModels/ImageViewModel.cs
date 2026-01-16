@@ -1,4 +1,4 @@
-﻿using ChepInlineApp.Base;
+using ChepInlineApp.Base;
 using ChepInlineApp.Enums;
 using ChepInlineApp.Helpers;
 using ChepInlineApp.Stores;
@@ -77,6 +77,10 @@ namespace ChepInlineApp.ViewModels
             if (img != null && img.IsInitialized())
             {
                 Image = img;
+            }
+            else
+            {
+                Image = null;
             }
         }
 

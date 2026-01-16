@@ -1,4 +1,4 @@
-﻿using ChepInlineApp.Helpers;
+using ChepInlineApp.Helpers;
 using HalconDotNet;
 using System;
 using System.Collections.Generic;
@@ -117,6 +117,7 @@ namespace ChepInlineApp.Stores
                     entry.Image = null;
                 }
                 entry.TimeStampUnixMs = 0;
+                entry.RaiseImageUpdated();
             }
             AppLogger.Info("Cleared all images from store");
         }

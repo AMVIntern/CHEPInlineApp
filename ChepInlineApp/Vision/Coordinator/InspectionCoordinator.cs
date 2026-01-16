@@ -1,4 +1,4 @@
-﻿using ChepInlineApp.AppCycleManager;
+using ChepInlineApp.AppCycleManager;
 using ChepInlineApp.Comms;
 using ChepInlineApp.DataServices;
 using ChepInlineApp.Helpers;
@@ -283,7 +283,7 @@ namespace ChepInlineApp.Vision.Coordinator
                         // Get Pallet ID that was stored with the image at capture time
                         int palletId = _imageStore.GetPalletId(cameraId);
                         string tagId = palletId.ToString(); // Use pallet ID stored with image
-                        await _csvWriter.WriteImageCaptureAsync(imagePath, timestamp, tagId);
+                        await _csvWriter.WriteImageCaptureAsync(imagePath, timestamp, tagId, result, confidence);
                     }
                 }
                 catch (Exception ex)

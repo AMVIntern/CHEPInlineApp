@@ -309,6 +309,7 @@ namespace ChepInlineApp.ViewModels
                 _wasInspecting = InfeedCam.IsInspecting;
                 _lastCountedResult = null;
                 InfeedCam.InspectionPassed = null;
+                _imageStore.ClearImages();
             }
         }
 

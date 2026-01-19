@@ -120,7 +120,7 @@
                     
                     <!-- Pass Label -->
                     <TextBlock Grid.Column="1"
-                               Text="Pass"
+                               Text="Bypass Inspection"
                                FontSize="24"
                                FontWeight="Bold"
                                Foreground="White"
@@ -197,7 +197,7 @@
                     
                     <!-- Fail Label -->
                     <TextBlock Grid.Column="1"
-                               Text="Fail"
+                               Text="Inspection Required"
                                FontSize="24"
                                FontWeight="Bold"
                                Foreground="White"

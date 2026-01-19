@@ -45,7 +45,7 @@ namespace ChepInlineApp.Vision.Coordinator
         }
         private InspectionResources InitializeInspectionResources()
         {
-            var classifierModelPath = Path.Combine(PathConfig.ModelsFolder, "best_efficientnet_b0_2Classes_Brigthness.onnx");
+            var classifierModelPath = Path.Combine(PathConfig.ModelsFolder, "best_efficientnet_b0_2Classes_Brigthness_19JAN.onnx");
             if (!File.Exists(classifierModelPath))
                 AppLogger.Error($"Model file not found at: {classifierModelPath}");
 

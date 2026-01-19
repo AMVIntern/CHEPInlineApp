@@ -12,7 +12,14 @@ namespace ChepInlineApp.DataServices
     public class ImageLoggingService
     {
         private readonly string _baseDirectory = @"C:\AMV\ImageLogs";
-        public async Task<string?> LogAsync(HImage image, long timestamp, string cameraName, string result = "Pass", double confidence = 0.0, string format = "tiff")
+
+        public async Task<string?> LogAsync(
+            HImage image,
+            long timestamp,
+            string cameraName,
+            string result = "Pass",
+            double confidence = 0.0,
+            string format = "tiff")
         {
             try
             {
@@ -21,24 +28,26 @@ namespace ChepInlineApp.DataServices
                 string month = date.Month.ToString("00");
                 string day = date.Day.ToString("00");
 
-                string basePath = Path.Combine(_baseDirectory, year, month, day, cameraName);
+                string basePath = Path.Combine(
+                    _baseDirectory,
+                    year,
+                    month,
+                    day,
+                    cameraName,
+                    result.Equals("Fail", StringComparison.OrdinalIgnoreCase) ? "Fail" : "Pass"
+                );
 
                 Directory.CreateDirectory(basePath);
 
-                string confidenceStr = (confidence * 100).ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
+                string confidenceStr = (confidence * 100)
+                    .ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
+
                 string fileName = $"{timestamp}_{cameraName}_{result}_{confidenceStr}.{GetExtension(format)}";
                 string fullPath = Path.Combine(basePath, fileName);
-
-                // PNG subfolder
-                string pngFolder = Path.Combine(basePath, "png");
-                Directory.CreateDirectory(pngFolder);
-                string pngFileName = $"{timestamp}_{cameraName}_{result}_{confidenceStr}.png";
-                string pngFullPath = Path.Combine(pngFolder, pngFileName);
 
                 await Task.Run(() =>
                 {
                     image.WriteImage(format, 0, fullPath);
-                    image.WriteImage("png", 0, pngFullPath);
                 });
 
                 return fullPath;

@@ -49,7 +49,7 @@ namespace ChepInlineApp.Vision.Handlers.Steps
 
                 if (!passed)
                 {
-                    if (confidence < 0.80f)
+                    if (confidence < 0.89f)
                     {
                         resultLabel = "Pass";
                         passed = true;

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Globalization;
 using System.IO;
 using System.Text;
@@ -17,7 +17,7 @@ namespace ChepInlineApp.MetadataExporter.Services
             Directory.CreateDirectory(_csvDirectory);
         }
 
-        public async Task WriteImageCaptureAsync(string imagePath, long timestamp, string tagId = "tag123")
+        public async Task WriteImageCaptureAsync(string imagePath, long timestamp, string tagId = "tag123", string result = "Pass", double confidence = 0.0)
         {
             try
             {
@@ -26,7 +26,7 @@ namespace ChepInlineApp.MetadataExporter.Services
                 string csvFilePath = Path.Combine(_csvDirectory, csvFileName);
 
                 // Create CSV entry
-                string csvLine = FormatCsvLine(imagePath, timestamp, date, tagId);
+                string csvLine = FormatCsvLine(imagePath, timestamp, date, tagId, result, confidence);
 
                 // Append to CSV file (thread-safe)
                 await Task.Run(() =>
@@ -40,7 +40,7 @@ namespace ChepInlineApp.MetadataExporter.Services
                             // Write header if file is new
                             if (!fileExists)
                             {
-                                writer.WriteLine("DateTime,ImagePath,TagID");
+                                writer.WriteLine("DateTime,ImagePath,TagID,Result,Confidence");
                             }
                             
                             writer.WriteLine(csvLine);
@@ -68,16 +68,19 @@ namespace ChepInlineApp.MetadataExporter.Services
             return $"Infeed_Report_{day}-{month}-{year}.csv";
         }
 
-        private string FormatCsvLine(string imagePath, long timestamp, DateTimeOffset date, string tagId)
+        private string FormatCsvLine(string imagePath, long timestamp, DateTimeOffset date, string tagId, string result, double confidence)
         {
-            // Format: DateTime,ImagePath,TagID
+            // Format: DateTime,ImagePath,TagID,Result,Confidence
             string dateTimeString = date.ToString("yyyy-MM-dd HH:mm:ss.fff");
             
             // Escape commas and quotes in image path if needed
             string escapedPath = EscapeCsvField(imagePath);
             string escapedTagId = EscapeCsvField(tagId);
+            string escapedResult = EscapeCsvField(result);
+            // Multiply by 100 to convert from decimal (0.95) to percentage (95.0000)
+            string confidenceStr = (confidence * 100).ToString("F4", CultureInfo.InvariantCulture);
             
-            return $"{dateTimeString},{escapedPath},{escapedTagId}";
+            return $"{dateTimeString},{escapedPath},{escapedTagId},{escapedResult},{confidenceStr}";
         }
 
         private string EscapeCsvField(string field)

@@ -15,7 +15,7 @@ namespace ChepInlineApp.Resources
 
             if (value is bool status)
             {
-                return status ? "GOOD" : "BAD";
+                return status ? "PASS" : "FAIL";
             }
 
             return "WAITING...";

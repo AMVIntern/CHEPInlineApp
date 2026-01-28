@@ -77,6 +77,7 @@ namespace ChepInlineApp
                     .AddSingleton<TriggerStore>()
                     .AddSingleton<PlcEventStore>()
                     .AddSingleton<PlcCommsManager>()
+                    .AddSingleton<ResultPlcWriter>()
                     .AddSingleton<NavigationBarViewModel>(provider =>
                     {
                         var navigationStore = provider.GetRequiredService<NavigationStore>();
@@ -104,6 +105,8 @@ namespace ChepInlineApp
             mainWindow.Show();
             var plcCommsManager = _host.Services.GetRequiredService<PlcCommsManager>();
             await plcCommsManager.InitializeAsync();
+            var resultPlcWriter = _host.Services.GetRequiredService<ResultPlcWriter>();
+            resultPlcWriter.Start();
 
             base.OnStartup(e);
         }

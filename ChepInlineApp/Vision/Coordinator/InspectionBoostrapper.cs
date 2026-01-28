@@ -24,7 +24,7 @@ namespace ChepInlineApp.Vision.Coordinator
 
         private readonly PlcEventStore _plcEventStore;
 
-        public InspectionBoostrapper(MultiCameraImageStore imageStore, Dictionary<string, CameraViewModel> cameraViewModels, ImageLogger imageLogger, ImageCaptureCsvWriter csvWriter, TriggerSessionManager triggerSessionManager, PlcEventStore plcEventStore, PlcCommsManager plcCommsManager, SettingsViewModel settingsViewModel, HomeViewModel? homeViewModel = null)
+        public InspectionBoostrapper(MultiCameraImageStore imageStore, Dictionary<string, CameraViewModel> cameraViewModels, ImageLogger imageLogger, ImageCaptureCsvWriter csvWriter, TriggerSessionManager triggerSessionManager, PlcEventStore plcEventStore, PlcCommsManager plcCommsManager, ResultPlcWriter resultPlcWriter, SettingsViewModel settingsViewModel, HomeViewModel? homeViewModel = null)
         {
             _triggerSessionManager = triggerSessionManager;
             _settingsViewModel = settingsViewModel;
@@ -41,7 +41,7 @@ namespace ChepInlineApp.Vision.Coordinator
                 },
             };
 
-            Coordinator = new InspectionCoordinator(runners, imageStore, cameraViewModels, imageLogger, csvWriter, _triggerSessionManager, _plcEventStore, plcCommsManager, homeViewModel);
+            Coordinator = new InspectionCoordinator(runners, imageStore, cameraViewModels, imageLogger, csvWriter, _triggerSessionManager, _plcEventStore, plcCommsManager, resultPlcWriter,homeViewModel);
         }
         private InspectionResources InitializeInspectionResources()
         {

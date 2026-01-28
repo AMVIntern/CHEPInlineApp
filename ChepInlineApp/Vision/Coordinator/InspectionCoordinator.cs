@@ -5,10 +5,11 @@ using ChepInlineApp.Helpers;
 using ChepInlineApp.MetadataExporter.Services;
 using ChepInlineApp.Stores;
 using ChepInlineApp.ViewModels;
-using HalconDotNet;
 using ChepInlineApp.Vision.Handlers.Core;
-using ChepInlineApp.Vision.Results;
 using ChepInlineApp.Vision.Handlers.Interfaces;
+using ChepInlineApp.Vision.Results;
+using HalconDotNet;
+using System.Diagnostics;
 using System.Windows;
 
 namespace ChepInlineApp.Vision.Coordinator
@@ -24,6 +25,7 @@ namespace ChepInlineApp.Vision.Coordinator
         private readonly PlcEventStore _plcEventStore;
         private readonly PlcCommsManager _plcCommsManager;
         private readonly HomeViewModel? _homeViewModel;
+        private readonly ResultPlcWriter _resultPlcWriter;
 
         public InspectionCoordinator(
             Dictionary<string, IInspectionRunner> runners,
@@ -33,8 +35,9 @@ namespace ChepInlineApp.Vision.Coordinator
             ImageCaptureCsvWriter csvWriter,
             TriggerSessionManager triggerSessionManager,
             PlcEventStore plcEventStore,
-            PlcCommsManager plcCommsManager,
-            HomeViewModel? homeViewModel = null)
+            PlcCommsManager plcCommsManager, ResultPlcWriter resultPlcWriter,
+            HomeViewModel? homeViewModel = null
+)
         {
             _runners = runners;
             _imageStore = imageStore;
@@ -44,6 +47,7 @@ namespace ChepInlineApp.Vision.Coordinator
             _triggerSessionManager = triggerSessionManager;
             _plcEventStore = plcEventStore;
             _plcCommsManager = plcCommsManager;
+            _resultPlcWriter = resultPlcWriter;
             _homeViewModel = homeViewModel;
 
             // Subscribe to all cameras for inspection, even if no runner is registered
@@ -258,6 +262,19 @@ namespace ChepInlineApp.Vision.Coordinator
                 cameraViewModel.IsInspecting = false;
                 cameraViewModel.InspectionPassed = passed;
                 cameraViewModel.InspectionMessage = message;
+            }
+
+            // Send result to PLC (1 = good, 2 = bad) using pallet id from store
+            if (passed.HasValue)
+            {
+                int palletId = _imageStore.GetPalletId(cameraId);
+
+                int resultValue = passed.Value ? 1 : 2;
+
+                await _resultPlcWriter.PublishAsync(palletId, resultValue);
+
+                Debug.WriteLine($"[Result to PLC] Camera={cameraId}, PalletId={palletId}, Passed={passed.Value}, Value={resultValue}");
+
             }
 
             // Log the image with inspection result

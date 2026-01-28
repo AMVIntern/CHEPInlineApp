@@ -32,11 +32,11 @@ namespace ChepInlineApp.ViewModels
         private readonly PlcEventStore _plcEventStore;
         private readonly PlcCommsManager _plcCommsManager;
         private readonly NavigationBarViewModel _navigationBarViewModel;
-
+        private readonly ResultPlcWriter _resultPlcWriter;
         public NavigationBarViewModel NavigationBarViewModel => _navigationBarViewModel;
 
         public MainWindowViewModel(NavigationStore navigationStore, HomeViewModel homeViewModel,
-            SettingsViewModel settingsViewModel, ModalStore modalStore, MultiCameraImageStore imageStore, ImageLogger imageLogger, ChepInlineApp.MetadataExporter.Services.ImageCaptureCsvWriter csvWriter, TriggerSessionManager triggerSessionManager, PlcEventStore plcEventStore, PlcCommsManager plcCommsManager, NavigationBarViewModel navigationBarViewModel)
+            SettingsViewModel settingsViewModel, ModalStore modalStore, MultiCameraImageStore imageStore, ImageLogger imageLogger, ChepInlineApp.MetadataExporter.Services.ImageCaptureCsvWriter csvWriter, TriggerSessionManager triggerSessionManager, PlcEventStore plcEventStore, PlcCommsManager plcCommsManager, NavigationBarViewModel navigationBarViewModel, ResultPlcWriter resultPlcWriter)
         {
             _navigationStore = navigationStore;
             _homeViewModel = homeViewModel;
@@ -53,11 +53,13 @@ namespace ChepInlineApp.ViewModels
             _settingsViewModel = settingsViewModel;
             _navigationStore.RetainViewModel(_settingsViewModel);
             _navigationStore.RetainViewModel(_homeViewModel);
+            _resultPlcWriter = resultPlcWriter;
             var cameraViewModels = new Dictionary<string, CameraViewModel>
             {
                 { "InfeedCam", homeViewModel.InfeedCam },
             };
-            var bootstrapper = new InspectionBoostrapper(imageStore, cameraViewModels, imageLogger, csvWriter, triggerSessionManager, _plcEventStore, _plcCommsManager, settingsViewModel, homeViewModel);
+            var bootstrapper = new InspectionBoostrapper(imageStore, cameraViewModels, imageLogger, csvWriter, triggerSessionManager, _plcEventStore, _plcCommsManager, resultPlcWriter, settingsViewModel, homeViewModel);
+            
         }
         private void NavigationStore_CurrentViewModelChanged()
         {

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.14.36603.0
+# Visual Studio Version 18
+VisualStudioVersion = 18.3.11512.155 d18.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChepInlineApp", "ChepInlineApp\ChepInlineApp.csproj", "{66148D34-D6B1-42D3-B96E-755812460232}"
 EndProject
@@ -10,6 +10,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChepInlineApp.MetadataExporter", "ChepInlineApp.MetadataExporter\ChepInlineApp.MetadataExporter.csproj", "{D9607243-85D9-4989-BCC6-AE09808E209B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChepInlineApp.Classifier", "ChepInlineApp.Classifier\ChepInlineApp.Classifier.csproj", "{B4A4A02C-077B-4957-8413-85C81F6CE5DF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChepInlineApp.PatchCore", "ChepInlineApp.PatchCore\ChepInlineApp.PatchCore.csproj", "{EB3184AF-9582-449F-9E52-1FE7740650A3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{B4A4A02C-077B-4957-8413-85C81F6CE5DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B4A4A02C-077B-4957-8413-85C81F6CE5DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B4A4A02C-077B-4957-8413-85C81F6CE5DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EB3184AF-9582-449F-9E52-1FE7740650A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB3184AF-9582-449F-9E52-1FE7740650A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB3184AF-9582-449F-9E52-1FE7740650A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB3184AF-9582-449F-9E52-1FE7740650A3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

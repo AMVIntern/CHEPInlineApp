@@ -37,6 +37,10 @@ namespace ChepInlineApp.Vision.Coordinator
                     "InfeedCam", new SequentialInspectionRunner(new IInspectionStep[]
                     {
                         new ClassifierInspectionStep("InfeedCam Inspection Step", resources.ClassifierModelPath),
+
+                        new PatchCoreInspectionStep("InfeedCam PatchCore Step", resources.PatchCoreModelPath, threshold: 0.75f, mapScoreMode: "max"),
+
+                        new CombineInspectionResultsStep("InfeedCam Inspection Step", "InfeedCam PatchCore Step"),
                     })
                 },
             };
@@ -49,9 +53,15 @@ namespace ChepInlineApp.Vision.Coordinator
             if (!File.Exists(classifierModelPath))
                 AppLogger.Error($"Model file not found at: {classifierModelPath}");
 
+            var patchCoreModelPath = Path.Combine(PathConfig.ModelsFolder, "model_layer2_res.onnx");
+            if (!File.Exists(patchCoreModelPath))
+                AppLogger.Error($"Model file not found at: {patchCoreModelPath}");
+
             return new InspectionResources
             {
                 ClassifierModelPath = classifierModelPath,
+                PatchCoreModelPath = patchCoreModelPath
+
             };
         }
     }
@@ -59,4 +69,5 @@ namespace ChepInlineApp.Vision.Coordinator
 public class InspectionResources
 {
     public string ClassifierModelPath { get; init; } = string.Empty;
+    public string PatchCoreModelPath { get; init; } = string.Empty;
 }

@@ -210,15 +210,46 @@ namespace ChepInlineApp.Vision.Coordinator
             double confidence = 0.0;
             bool hasInspectionResult = false;
 
-            // First, check for InspectionResult objects (from ClassifierInspectionStep and other steps)
-            InspectionResult? inspectionResult = null;
-            foreach (var kvp in context.InspectionResults)
+            // ✅ Ordered logging: Classifier -> PatchCore -> Overall
+            void LogInspection(string key)
             {
-                if (kvp.Value is InspectionResult result)
+                if (context.InspectionResults.TryGetValue(key, out var obj) && obj is InspectionResult r)
                 {
-                    inspectionResult = result;
-                    hasInspectionResult = true;
-                    break; // Use the first InspectionResult found
+                    AppLogger.Info($"[{cameraId}] {key}: {(r.Passed ? "Pass" : "Fail")}  Conf={r.Confidence:F4}");
+                }
+                else
+                {
+                    AppLogger.Info($"[{cameraId}] {key}: (no result)");
+                }
+            }
+
+            string clsKey = $"{cameraId} Inspection Step";
+            string pcKey = $"{cameraId} PatchCore Step";
+
+            LogInspection(clsKey);
+            LogInspection(pcKey);
+            LogInspection("Overall");
+
+            // ✅ Prefer deterministic Overall result if present (new Combine step will set this)
+            InspectionResult? inspectionResult = null;
+
+            if (context.InspectionResults.TryGetValue("Overall", out var overallObj) &&
+                overallObj is InspectionResult overallRes)
+            {
+                inspectionResult = overallRes;
+                hasInspectionResult = true;
+            }
+            else
+            {
+                // Fallback to existing behaviour (kept for safety)
+                foreach (var kvp in context.InspectionResults)
+                {
+                    if (kvp.Value is InspectionResult result)
+                    {
+                        inspectionResult = result;
+                        hasInspectionResult = true;
+                        break; // Use the first InspectionResult found
+                    }
                 }
             }
 
@@ -227,7 +258,7 @@ namespace ChepInlineApp.Vision.Coordinator
                 passed = inspectionResult.Passed;
                 confidence = inspectionResult.Confidence;
                 message = inspectionResult.Passed ? "Inspection Passed" : "Inspection Failed";
-                AppLogger.Info($"[{cameraId}] Classifier result: {(inspectionResult.Passed ? "Pass" : "Fail")}, Confidence: {confidence:F4}");
+                AppLogger.Info($"[{cameraId}] USED result: {(inspectionResult.Passed ? "Pass" : "Fail")}, Conf={confidence:F4} (Name={inspectionResult.InspectionName})");
             }
             else if (context.InspectionResults.TryGetValue("Passed", out var passedObj) && passedObj is bool passedValue)
             {

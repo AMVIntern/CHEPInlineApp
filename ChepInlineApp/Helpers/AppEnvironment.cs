@@ -8,6 +8,6 @@ namespace ChepInlineApp.Helpers
 {
     public class AppEnvironment
     {
-        public static bool IsOfflineMode { get; set; } = true;
+        public static bool IsOfflineMode { get; set; } = false;
     }
 }

@@ -37,6 +37,7 @@ namespace ChepInlineApp.Comms
         public void Start()
         {
             if (_worker != null) return;
+            
             _worker = Task.Run(WorkerLoopAsync);
         }
 
@@ -121,14 +122,42 @@ namespace ChepInlineApp.Comms
                             _resultValueTag!.SetInt32(0, msg.ResultValue);
                             _resultValueTag.Write();
 
+                            int valueStatus = (int)_resultValueTag.GetStatus();
+                            if (valueStatus != 0)
+                            {
+                                AppLogger.Error($"[PLC] Write FAILED for ResultValue. Status={valueStatus}");
+                                ForceReinit();
+                                continue;
+                            }
+
                             // 2) Write palletId last (PLC detects change here)
                             _resultPalletIdTag!.SetInt32(0, msg.PalletId);
                             _resultPalletIdTag.Write();
 
+                            int palletStatus = (int)_resultPalletIdTag.GetStatus();
+                            if (palletStatus != 0)
+                            {
+                                AppLogger.Error($"[PLC] Write FAILED for ResultPalletId. Status={palletStatus}");
+                                ForceReinit();
+                                continue;
+                            }
+
                             _lastWrittenPalletId = msg.PalletId;
 
-                            AppLogger.Info("[PLC] Wrote VisionResult: PalletId={PalletId}, Value={Value}",
+                            AppLogger.Info("[PLC] Write OK. PalletId={PalletId}, Value={Value}",
                                 msg.PalletId, msg.ResultValue);
+                            // DEBUG: read back to confirm PLC actually holds the values we wrote
+                            _resultPalletIdTag!.Read();
+                            int rbPalletStatus = (int)_resultPalletIdTag.GetStatus();
+                            int rbPallet = _resultPalletIdTag.GetInt32(0);
+
+                            _resultValueTag!.Read();
+                            int rbValueStatus = (int)_resultValueTag.GetStatus();
+                            int rbValue = _resultValueTag.GetInt32(0);
+
+                            AppLogger.Info("[PLC] ReadBack: PalletId={PalletId} (st={Pst}), Value={Value} (st={Vst})",
+                                rbPallet, rbPalletStatus, rbValue, rbValueStatus);
+
                         }
                         catch (Exception ex)
                         {
@@ -140,6 +169,20 @@ namespace ChepInlineApp.Comms
             catch (OperationCanceledException)
             {
                 // ignore
+            }
+        }
+        private void ForceReinit()
+        {
+            lock (_initLock)
+            {
+                try { _resultPalletIdTag?.Dispose(); } catch { }
+                try { _resultValueTag?.Dispose(); } catch { }
+
+                _resultPalletIdTag = null;
+                _resultValueTag = null;
+                _initialized = false;
+
+                AppLogger.Info("[PLC] Tags disposed. Will reinitialize on next write.");
             }
         }
 

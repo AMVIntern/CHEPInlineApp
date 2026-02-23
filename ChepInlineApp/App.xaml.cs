@@ -92,6 +92,7 @@ namespace ChepInlineApp
         }
         protected override async void OnStartup(StartupEventArgs e)
         {
+            AppLogger.Initialize();
             _ = _host.Services.GetRequiredService<ImageAcquisitionViewModel>();
 
             var settingsViewModel = _host.Services.GetRequiredService<SettingsViewModel>();
@@ -110,5 +111,12 @@ namespace ChepInlineApp
 
             base.OnStartup(e);
         }
+
+        protected override void OnExit(ExitEventArgs e)
+        {
+            AppLogger.Shutdown();   // flush Serilog file
+            base.OnExit(e);
+        }
+
     }
 }

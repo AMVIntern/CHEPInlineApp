@@ -56,18 +56,6 @@ namespace ChepInlineApp.Vision.Handlers.Steps
                 var roi = new OpenCvSharp.Rect(cropX, cropY, cropW, cropH);
                 using var croppedMat = new Mat(mat, roi).Clone();
                
-                // ✅ SAVE ALL CROPS TO DESKTOP\InfeedLogs
-                string desktop = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
-                string logDir = Path.Combine(desktop, "InfeedLogs");
-
-                Directory.CreateDirectory(logDir);
-
-                // Create unique filename
-                string fileName = $"{DateTime.Now:yyyyMMdd_HHmmss_fff}_{context.CameraId}.png";
-                string fullPath = Path.Combine(logDir, fileName);
-
-                // Save PNG
-                Cv2.ImWrite(fullPath, croppedMat);
                 // 🔵 Now send cropped image to PatchCore
                 var (score, mn, mx, mean, src) = model.Infer(croppedMat, _mapScoreMode);
 

@@ -297,15 +297,15 @@ namespace ChepInlineApp.Vision.Coordinator
             {
                 dispatcher.Invoke(() =>
                 {
-                    cameraViewModel.IsInspecting = false;
                     cameraViewModel.InspectionPassed = passed;
+                    cameraViewModel.IsInspecting = false;
                     cameraViewModel.InspectionMessage = message;
                 });
             }
             else
             {
-                cameraViewModel.IsInspecting = false;
                 cameraViewModel.InspectionPassed = passed;
+                cameraViewModel.IsInspecting = false;
                 cameraViewModel.InspectionMessage = message;
             }
 

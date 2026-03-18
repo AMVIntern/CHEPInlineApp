@@ -8,8 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MVTec.HalconDotNet" Version="25110.0.0" />
-    <PackageReference Include="MVTec.HalconDotNet-Windows" Version="25110.0.0" />
+    <PackageReference Include="MVTec.HalconDotNet" Version="25050.0.0" />
+    <PackageReference Include="MVTec.HalconDotNet-Windows" Version="25050.0.0" />
   </ItemGroup>
 
 </Project>

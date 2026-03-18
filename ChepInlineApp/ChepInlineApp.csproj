@@ -12,8 +12,8 @@
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <PackageReference Include="libplctag" Version="1.5.2" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0" />
-    <PackageReference Include="MVTec.HalconDotNet" Version="25110.0.0" />
-    <PackageReference Include="MVTec.HalconDotNet-Windows" Version="25110.0.0" />
+    <PackageReference Include="MVTec.HalconDotNet" Version="25050.0.0" />
+    <PackageReference Include="MVTec.HalconDotNet-Windows" Version="25050.0.0" />
 	<PackageReference Include="Serilog" Version="4.3.0" />
 	<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 	<PackageReference Include="OpenCvSharp4" Version="4.11.0.20250507" />

@@ -9,8 +9,8 @@
 
   <ItemGroup>
 	  <PackageReference Include="Microsoft.ML.OnnxRuntime.Gpu" Version="1.21.0" />
-	  <PackageReference Include="MVTec.HalconDotNet" Version="25110.0.0" />
-	  <PackageReference Include="MVTec.HalconDotNet-Windows" Version="25110.0.0" />
+	  <PackageReference Include="MVTec.HalconDotNet" Version="25050.0.0" />
+	  <PackageReference Include="MVTec.HalconDotNet-Windows" Version="25050.0.0" />
 	  <PackageReference Include="OpenCvSharp4" Version="4.11.0.20250507" />
 	  <PackageReference Include="OpenCvSharp4.runtime.win" Version="4.11.0.20250507" />
   </ItemGroup>

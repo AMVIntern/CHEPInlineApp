@@ -1,4 +1,4 @@
-﻿using ChepInlineApp.Vision.Handlers.Core;
+using ChepInlineApp.Vision.Handlers.Core;
 using ChepInlineApp.Vision.Handlers.Interfaces;
 using ChepInlineApp.Vision.Results;
 
@@ -10,33 +10,41 @@ namespace ChepInlineApp.Vision.Handlers.Steps
 
         private readonly string _classifierKey;
         private readonly string _patchCoreKey;
+        private readonly string? _yoloxKey;
 
-        public CombineInspectionResultsStep(string classifierKey, string patchCoreKey)
+        public CombineInspectionResultsStep(string classifierKey, string patchCoreKey, string? yoloxKey = null)
         {
             _classifierKey = classifierKey;
             _patchCoreKey = patchCoreKey;
+            _yoloxKey = yoloxKey;
         }
 
         public Task RunAsync(InspectionContext context)
         {
             return Task.Run(() =>
             {
-                // Pull both results (must exist if steps ran)
                 context.InspectionResults.TryGetValue(_classifierKey, out var cObj);
                 context.InspectionResults.TryGetValue(_patchCoreKey, out var pObj);
+                object? yObj = null;
+                if (_yoloxKey != null)
+                    context.InspectionResults.TryGetValue(_yoloxKey, out yObj);
 
                 var c = cObj as InspectionResult;
                 var p = pObj as InspectionResult;
+                var y = yObj as InspectionResult;
 
                 bool overallPass =
                     (c?.Passed ?? false) &&
-                    (p?.Passed ?? false);
+                    (p?.Passed ?? false) &&
+                    (y?.Passed ?? true);  // if YOLOX not present, don't penalise
 
-                // Pick a conservative confidence
-                double conf = 0.0;
-                if (c != null && p != null) conf = Math.Min(c.Confidence, p.Confidence);
-                else if (c != null) conf = c.Confidence;
-                else if (p != null) conf = p.Confidence;
+                // Conservative confidence: minimum across all present results
+                var presentConfs = new List<double>();
+                if (c != null) presentConfs.Add(c.Confidence);
+                if (p != null) presentConfs.Add(p.Confidence);
+                if (y != null) presentConfs.Add(y.Confidence);
+                double conf = presentConfs.Count > 0 ? presentConfs.Min() : 0.0;
+
                 context.InspectionResults["Overall"] = new InspectionResult
                 {
                     InspectionName = "Overall",
@@ -45,7 +53,6 @@ namespace ChepInlineApp.Vision.Handlers.Steps
                     InspectionComplete = false
                 };
 
-                // Also store a bool (some of your code reads these)
                 context.InspectionResults["OverallPass"] = overallPass;
             });
         }

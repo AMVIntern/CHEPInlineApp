@@ -41,5 +41,6 @@
 	  <ProjectReference Include="..\ChepInlineApp.PLC\ChepInlineApp.PLC.csproj" />
 	  <ProjectReference Include="..\ChepInlineApp.MetadataExporter\ChepInlineApp.MetadataExporter.csproj" />
 	  <ProjectReference Include="..\ChepInlineApp.PatchCore\ChepInlineApp.PatchCore.csproj" />
+	  <ProjectReference Include="..\ChepInlineApp.YOLOX\ChepInlineApp.YOLOX.csproj" />
 	</ItemGroup>
 </Project>

@@ -293,10 +293,24 @@ namespace ChepInlineApp.Vision.Coordinator
 
             // Update UI on the dispatcher thread
             var dispatcher = Application.Current?.Dispatcher;
+
+            // Show annotated image from YOLOX if available
+            string yoloxStepKey = $"{cameraId} YOLOX Step";
+            HalconDotNet.HImage? annotatedImage = null;
+            if (context.InspectionResults.TryGetValue(yoloxStepKey, out var yoloxObj) &&
+                yoloxObj is ChepInlineApp.Vision.Results.InspectionResult yoloxResult &&
+                yoloxResult.ProcessedImage != null &&
+                yoloxResult.ProcessedImage.IsInitialized())
+            {
+                annotatedImage = yoloxResult.ProcessedImage;
+            }
+
             if (dispatcher != null && !dispatcher.CheckAccess())
             {
                 dispatcher.Invoke(() =>
                 {
+                    if (annotatedImage != null)
+                        cameraViewModel.Image = annotatedImage;
                     cameraViewModel.InspectionPassed = passed;
                     cameraViewModel.IsInspecting = false;
                     cameraViewModel.InspectionMessage = message;
@@ -304,6 +318,8 @@ namespace ChepInlineApp.Vision.Coordinator
             }
             else
             {
+                if (annotatedImage != null)
+                    cameraViewModel.Image = annotatedImage;
                 cameraViewModel.InspectionPassed = passed;
                 cameraViewModel.IsInspecting = false;
                 cameraViewModel.InspectionMessage = message;

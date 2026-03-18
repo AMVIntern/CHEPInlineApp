@@ -40,7 +40,9 @@ namespace ChepInlineApp.Vision.Coordinator
 
                         new PatchCoreInspectionStep("InfeedCam PatchCore Step", resources.PatchCoreModelPath, threshold: 0.75f, mapScoreMode: "max"),
 
-                        new CombineInspectionResultsStep("InfeedCam Inspection Step", "InfeedCam PatchCore Step"),
+                        new YoloXInspectionStep("InfeedCam YOLOX Step", resources.YoloxModelPath),
+
+                        new CombineInspectionResultsStep("InfeedCam Inspection Step", "InfeedCam PatchCore Step", "InfeedCam YOLOX Step"),
                     })
                 },
             };
@@ -57,11 +59,15 @@ namespace ChepInlineApp.Vision.Coordinator
             if (!File.Exists(patchCoreModelPath))
                 AppLogger.Error($"Model file not found at: {patchCoreModelPath}");
 
+            var yoloxModelPath = Path.Combine(PathConfig.ModelsFolder, "yolox_m_infeed_17MAR26.onnx");
+            if (!File.Exists(yoloxModelPath))
+                AppLogger.Error($"Model file not found at: {yoloxModelPath}");
+
             return new InspectionResources
             {
                 ClassifierModelPath = classifierModelPath,
-                PatchCoreModelPath = patchCoreModelPath
-
+                PatchCoreModelPath = patchCoreModelPath,
+                YoloxModelPath = yoloxModelPath
             };
         }
     }
@@ -70,4 +76,5 @@ public class InspectionResources
 {
     public string ClassifierModelPath { get; init; } = string.Empty;
     public string PatchCoreModelPath { get; init; } = string.Empty;
+    public string YoloxModelPath { get; init; } = string.Empty;
 }

@@ -37,8 +37,8 @@ namespace ChepInlineApp.Vision.Handlers.Steps
 
                 bool overallPass =
                     (c?.Passed ?? false) &&
-                    (p?.Passed ?? false) &&
-                    (y?.Passed ?? true);  // if YOLOX not present, don't penalise
+                    (_patchCoreKey == null || (p?.Passed ?? false)) &&
+                    (_yoloxKey == null || (y?.Passed ?? false));
 
                 // Conservative confidence: minimum across all present results
                 var presentConfs = new List<double>();

@@ -9,10 +9,10 @@ namespace ChepInlineApp.Vision.Handlers.Steps
         public string Name { get; } = "Overall";
 
         private readonly string _classifierKey;
-        private readonly string _patchCoreKey;
+        private readonly string? _patchCoreKey;
         private readonly string? _yoloxKey;
 
-        public CombineInspectionResultsStep(string classifierKey, string patchCoreKey, string? yoloxKey = null)
+        public CombineInspectionResultsStep(string classifierKey, string? patchCoreKey = null, string? yoloxKey = null)
         {
             _classifierKey = classifierKey;
             _patchCoreKey = patchCoreKey;
@@ -24,7 +24,9 @@ namespace ChepInlineApp.Vision.Handlers.Steps
             return Task.Run(() =>
             {
                 context.InspectionResults.TryGetValue(_classifierKey, out var cObj);
-                context.InspectionResults.TryGetValue(_patchCoreKey, out var pObj);
+                object? pObj = null;
+                if (_patchCoreKey != null)
+                    context.InspectionResults.TryGetValue(_patchCoreKey, out pObj);
                 object? yObj = null;
                 if (_yoloxKey != null)
                     context.InspectionResults.TryGetValue(_yoloxKey, out yObj);

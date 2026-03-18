@@ -38,11 +38,9 @@ namespace ChepInlineApp.Vision.Coordinator
                     {
                         new ClassifierInspectionStep("InfeedCam Inspection Step", resources.ClassifierModelPath),
 
-                        new PatchCoreInspectionStep("InfeedCam PatchCore Step", resources.PatchCoreModelPath, threshold: 0.75f, mapScoreMode: "max"),
-
                         new YoloXInspectionStep("InfeedCam YOLOX Step", resources.YoloxModelPath),
 
-                        new CombineInspectionResultsStep("InfeedCam Inspection Step", "InfeedCam PatchCore Step", "InfeedCam YOLOX Step"),
+                        new CombineInspectionResultsStep("InfeedCam Inspection Step", null, "InfeedCam YOLOX Step"),
                     })
                 },
             };

@@ -9,7 +9,7 @@ using OpenCvSharp;
 
 namespace ChepInlineApp.Vision.Handlers.Steps
 {
-    public class YoloXInspectionStep : IInspectionStep
+    public class YoloXInspectionStep : IInspectionStep, IDisposable
     {
         public string Name { get; }
 
@@ -24,12 +24,12 @@ namespace ChepInlineApp.Vision.Handlers.Steps
         };
 
         private const int StaplesMaxAllowed = 7;
-        private readonly string _modelPath;
+        private readonly YoloXModel _model;
 
         public YoloXInspectionStep(string name, string modelPath)
         {
             Name = name;
-            _modelPath = modelPath;
+            _model = new YoloXModel(modelPath, confThreshold: 0.4f);
         }
 
         public Task RunAsync(InspectionContext context)
@@ -40,12 +40,11 @@ namespace ChepInlineApp.Vision.Handlers.Steps
 
                 HImage hImage = context.Image ?? throw new ArgumentNullException(nameof(context.Image));
 
-                using var model = new YoloXModel(_modelPath, confThreshold: 0.3f);
                 using var mat = ImageUtils.HImageToMatBGR(hImage);
 
                 AppLogger.Info($"[{Name}] Running YOLOX inference");
 
-                var predictions = model.Infer(mat);
+                var predictions = _model.Infer(mat);
 
                 // Pass/fail rules:
                 //  Class 0 (Cracks)         → always ignored
@@ -105,5 +104,7 @@ namespace ChepInlineApp.Vision.Handlers.Steps
                 };
             });
         }
+
+        public void Dispose() => _model?.Dispose();
     }
 }

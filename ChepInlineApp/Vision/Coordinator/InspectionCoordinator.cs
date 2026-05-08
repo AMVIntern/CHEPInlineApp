@@ -340,7 +340,7 @@ namespace ChepInlineApp.Vision.Coordinator
 
                     // Clone the image for logging to avoid disposal issues
                     HImage imageToLog = image.Clone();
-                    string? imagePath = await _imageLogger.LogIfEnabledAsync(imageToLog, timestamp, cameraId, result, confidence, "tiff");
+                    string? imagePath = await _imageLogger.LogIfEnabledAsync(imageToLog, timestamp, cameraId, result, confidence, "jpeg");
 
                     // Write to CSV if image was logged
                     if (!string.IsNullOrEmpty(imagePath))

@@ -38,7 +38,7 @@ namespace ChepInlineApp.Vision.Coordinator
                     {
                         new ClassifierInspectionStep("InfeedCam Inspection Step", resources.ClassifierModelPath),
 
-                        new YoloXInspectionStep("InfeedCam YOLOX Step", resources.YoloxModelPath),
+                        new PalletCropYoloXStep("InfeedCam YOLOX Step", resources.PalletModelPath, resources.YoloxModelPath),
 
                         new CombineInspectionResultsStep("InfeedCam Inspection Step", null, "InfeedCam YOLOX Step"),
                     })
@@ -57,15 +57,20 @@ namespace ChepInlineApp.Vision.Coordinator
             if (!File.Exists(patchCoreModelPath))
                 AppLogger.Error($"Model file not found at: {patchCoreModelPath}");
 
-            var yoloxModelPath = Path.Combine(PathConfig.ModelsFolder, "yolox_m_infeed_17MAR26.onnx");
+            var yoloxModelPath = Path.Combine(PathConfig.ModelsFolder, "yolox_m_infeed08MAY26.onnx");
             if (!File.Exists(yoloxModelPath))
                 AppLogger.Error($"Model file not found at: {yoloxModelPath}");
+
+            var palletModelPath = Path.Combine(PathConfig.ModelsFolder, "yolox_m_pallet07MAY26.onnx");
+            if (!File.Exists(palletModelPath))
+                AppLogger.Error($"Model file not found at: {palletModelPath}");
 
             return new InspectionResources
             {
                 ClassifierModelPath = classifierModelPath,
                 PatchCoreModelPath = patchCoreModelPath,
-                YoloxModelPath = yoloxModelPath
+                YoloxModelPath = yoloxModelPath,
+                PalletModelPath = palletModelPath
             };
         }
     }
@@ -75,4 +80,5 @@ public class InspectionResources
     public string ClassifierModelPath { get; init; } = string.Empty;
     public string PatchCoreModelPath { get; init; } = string.Empty;
     public string YoloxModelPath { get; init; } = string.Empty;
+    public string PalletModelPath { get; init; } = string.Empty;
 }
